@@ -1,23 +1,74 @@
-# Compiled class file
-*.class
+!**/src/main/**
+!**/src/test/**
+/*/**/.gitignore
 
-# Log file
+# Windows:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
 *.log
+.sts4-cache
 
-# BlueJ files
-*.ctxt
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.mvn
+mvnw
+mvnw.cmd
+HELP.md
+target
+out
+rebel.xml
+bob.properties
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# Eclipse Project Files
+.metadata
+bin
+tmp
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.recommenders
+.externalToolBuilders
+*.launch
+*.pydevproject
+.cproject
+.autotools
+.buildpath
+.target
+.tern-project
+.texlipse
+.apt_generated_test
+.cache-main
+.scala_dependencies
+.worksheet
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+### NetBeans ###
+nbproject/private
+build
+nbbuild
+dist
+nbdist
+.nb-gradle
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+node_modules
+
+### VS Code ###
+.vscode
+
+# Build Artifacts 
+.gradle
+dependency-reduced-pom.xml
