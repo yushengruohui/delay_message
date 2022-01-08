@@ -48,7 +48,7 @@
 
 ## 2.1 整体实现思路
 
-![delay](.\doc\delay.png)
+![delay](https://github.com/yushengruohui/delay_message/doc/delay.png)
 
 
 
