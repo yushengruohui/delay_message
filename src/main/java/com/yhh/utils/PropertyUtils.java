@@ -48,6 +48,13 @@ public final class PropertyUtils {
         } catch (IOException e) {
             log.error("getConfig[读取配置项异常] || configFile : {} ", configFile, e);
             ExitUtils.exit();
+        } finally {
+            if (resource != null) {
+                try {
+                    resource.close();
+                } catch (IOException ignored) {
+                }
+            }
         }
         return defaultValue;
     }
