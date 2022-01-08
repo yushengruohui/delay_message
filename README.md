@@ -281,6 +281,8 @@ MsgTransferTask.run()
 
 源码路径：
 
+https://gitee.com/yushengruohui/delay_message
+
 https://github.com/yushengruohui/delay_message
 
 
