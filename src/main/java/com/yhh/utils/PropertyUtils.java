@@ -30,16 +30,16 @@ public final class PropertyUtils {
      */
     public static String getConfig(String configFile, String key, String defaultValue) {
         File file = new File(CLASSPATH + configFile);
-        InputStream resource = null;
+        InputStream resource2 = null;
         if (file.exists()) {
             try {
-                resource = new FileInputStream(file);
+                resource2 = new FileInputStream(file);
             } catch (FileNotFoundException ignored) {
             }
         } else {
-            resource = Thread.currentThread().getContextClassLoader().getResourceAsStream(configFile);
+            resource2 = Thread.currentThread().getContextClassLoader().getResourceAsStream(configFile);
         }
-        try {
+        try (InputStream resource = resource2) {
             Properties properties = new Properties();
             properties.load(resource);
             String value = properties.getProperty(key, defaultValue);
@@ -48,13 +48,6 @@ public final class PropertyUtils {
         } catch (IOException e) {
             log.error("getConfig[读取配置项异常] || configFile : {} ", configFile, e);
             ExitUtils.exit();
-        } finally {
-            if (resource != null) {
-                try {
-                    resource.close();
-                } catch (IOException ignored) {
-                }
-            }
         }
         return defaultValue;
     }
