@@ -135,7 +135,7 @@
 
 2）在 dev_ops 目录下执行 java -jar kafka_delay_sqlite-20220102.jar 即可启动程序
 
-3）如需修改配置，可修改 dev_ops/kafka_delay_sqlite-20220102.jar内的kafka.properties文件，设置自定义配置
+3）如需修改配置，可在dev_ops目录内创建kafka.properties文件，设置自定义配置
 
 默认配置如下：
 
@@ -239,7 +239,7 @@ MsgTransferTask.run()
 
 4） 每个 kafka.delay.workers 约需要 200 mb 内存，默认配置为2 , jvm 建议配置 1 GB 以上内存，避免频繁gc 。
 
- **workers 增大后，不要再减小**，否则部分 sqlite 没有线程访问，导致消息丢失。
+ **workers 增大后，不要再减小**，否则会导致部分 sqlite 数据库没有线程访问，消息丢失。
 
 并发处理数越大，延时消息处理效率越高，但需要注意不要大于topic的分区数。
 
