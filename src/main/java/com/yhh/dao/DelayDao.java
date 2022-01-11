@@ -50,7 +50,6 @@ public class DelayDao {
      */
     private final SQLiteDataSource dataSource = new SQLiteDataSource();
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void initSQLiteDataSource(int dbId) {
         String path = DelayConst.STORE_PATH + "/" + dbId;
         File file = new File(path);
@@ -60,10 +59,11 @@ public class DelayDao {
         dataSource.setSynchronous("NORMAL");
         // 追求极限性能，可以切换同步方式为 OFF ，但这个模式在操作系统奔溃或电源异常时，有概率造成sqlite数据库损坏
         // dataSource.setSynchronous("OFF");
+        dataSource.setTempStore("MEMORY");
         dataSource.setUrl(JDBC.PREFIX + path + "/delayMsg.db");
         try (
                 Connection connection = dataSource.getConnection();
-                Statement statement = connection.createStatement();
+                Statement statement = connection.createStatement()
         ) {
             int i = statement.executeUpdate(SQL_CREATE_TABLE);
             if (i == 1) {
@@ -91,7 +91,7 @@ public class DelayDao {
         // long start = System.currentTimeMillis();
         try (
                 Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(SQL_SCAN);
+                PreparedStatement statement = connection.prepareStatement(SQL_SCAN)
         ) {
             statement.setLong(1, DateUtils.epochSecond());
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -120,7 +120,7 @@ public class DelayDao {
         synchronized (writeLock) {
             try (
                     Connection connection = dataSource.getConnection();
-                    PreparedStatement preparedStatement = connection.prepareStatement(SQL_ADD);
+                    PreparedStatement preparedStatement = connection.prepareStatement(SQL_ADD)
             ) {
                 connection.setAutoCommit(false);
                 for (DelayDto record : records) {
@@ -149,7 +149,7 @@ public class DelayDao {
         synchronized (writeLock) {
             try (
                     Connection connection = dataSource.getConnection();
-                    PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE);
+                    PreparedStatement preparedStatement = connection.prepareStatement(SQL_DELETE)
             ) {
                 connection.setAutoCommit(false);
                 for (Long aLong : idList) {
