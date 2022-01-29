@@ -33,8 +33,6 @@ bob.properties
 
 # Eclipse Project Files
 .metadata
-bin
-tmp
 *.tmp
 *.bak
 *.swp
