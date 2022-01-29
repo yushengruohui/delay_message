@@ -133,11 +133,23 @@
 
 ## 4.2 安装
 
-1）在项目根目录执行 maven 打包后，会生成 dev_ops 文件
+1）在项目根目录执行 mvn package 打包后，会在 target 目录下生成  kafka_delay_sqlite-20220201.tar.gz 文件
 
-2）在 dev_ops 目录下执行 java -jar kafka_delay_sqlite-20220102.jar 即可启动程序
+2）解压 kafka_delay_sqlite-20220201.tar.gz 到指定安装目录(推荐： /usr/local/delay_msg ) ，执行启动脚本即可
 
-3）如需修改配置，可在dev_ops目录内创建kafka.properties文件，设置自定义配置
+解压指令：
+
+```shell
+tar -zxvf kafka_delay_sqlite-20220201.tar.gz
+```
+
+执行启动脚本：
+
+```shell
+sh kafka_delay_sqlite-20220201/bin/start.sh
+```
+
+3）如需修改配置，可修改 kafka_delay_sqlite-20220201/bin/kafka.properties文件，设置自定义配置（重启服务）
 
 默认配置如下：
 

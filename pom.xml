@@ -6,19 +6,14 @@
 
     <groupId>com.yhh</groupId>
     <artifactId>kafka_delay_sqlite</artifactId>
-    <version>20220102</version>
+    <version>20220201</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <!-- 默认jar包输出目录 -->
-        <common_build_path>./dev_ops</common_build_path>
-        <!--共用jar包所在目录-->
-        <common_jar_path>lib/</common_jar_path>
-        <!--springboot项目jar包输出目录-->
-        <source_jar_path>${common_build_path}</source_jar_path>
+        <mainClass>com.yhh.KafkaDelayApp</mainClass>
         <slf4j_version>1.7.25</slf4j_version>
         <log4j2_version>2.17.1</log4j2_version>
         <disruptor_version>3.4.2</disruptor_version>
@@ -83,59 +78,71 @@
     </dependencies>
     <build>
         <plugins>
+            <!--
+                maven编译工具
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                     <testSource>1.8</testSource>
                     <testTarget>1.8</testTarget>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
+                    <!--
                     <compilerArguments>
-                        <extdirs>${common_build_path}/${common_jar_path}</extdirs>
+                        &lt;!&ndash; 编译时可引用jar目录，没有配置的话，默认引用本地maven仓库 &ndash;&gt;
+                        <extdirs>${jar_dir}</extdirs>
                     </compilerArguments>
+                    -->
                 </configuration>
             </plugin>
-            <!-- 基于maven-jar-plugin插件实现把依赖jar定义写入输出jar的META-INFO/MANIFEST文件 -->
+            <!--
+                基于maven-jar-plugin插件实现把依赖jar定义写入输出jar的META-INFO/MANIFEST文件
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
                 <configuration>
-                    <outputDirectory>${source_jar_path}</outputDirectory>
                     <archive>
                         <manifest>
-                            <mainClass>com.yhh.KafkaDelayApp</mainClass>
-                            <classpathPrefix>${common_jar_path}</classpathPrefix>
+                            <mainClass>${mainClass}</mainClass>
                             <addClasspath>true</addClasspath>
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>.</Class-Path>
+                            <Class-Path>. ../resources/</Class-Path>
                         </manifestEntries>
                     </archive>
+                    <includes>
+                        <!-- 当前项目的 jar 包内排除静态资源 -->
+                        <include>**/*.class</include>
+                    </includes>
                 </configuration>
             </plugin>
-            <!--maven依赖迁移到公用目录-->
+            <!--
+                打成tar包工具
+            -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <outputDirectory>${project.build.directory}</outputDirectory>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>copy-dependencies</id>
+                        <id>make-assembly</id>
                         <phase>package</phase>
                         <goals>
-                            <goal>copy-dependencies</goal>
+                            <goal>single</goal>
                         </goals>
-                        <configuration>
-                            <outputDirectory>${common_build_path}/${common_jar_path}</outputDirectory>
-                            <excludeTransitive>false</excludeTransitive>
-                            <stripVersion>false</stripVersion>
-                            <silent>false</silent>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
