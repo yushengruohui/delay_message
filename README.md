@@ -133,23 +133,23 @@
 
 ## 4.2 安装
 
-1）在项目根目录执行 mvn package 打包后，会在 target 目录下生成  kafka_delay_sqlite-20220201.tar.gz 文件
+1）在项目根目录执行 mvn clean package 打包后，会在 target 目录下生成  delay_message-20220201.tar.gz 文件
 
-2）解压 kafka_delay_sqlite-20220201.tar.gz 到指定安装目录(推荐： /usr/local/delay_msg ) ，执行启动脚本即可
+2）解压 delay_message-20220201.tar.gz 到指定安装目录(推荐： /usr/local/delay_msg ) ，执行启动脚本即可
 
 解压指令：
 
 ```shell
-tar -zxvf kafka_delay_sqlite-20220201.tar.gz
+tar -zxvf delay_message-20220201.tar.gz
 ```
 
 执行启动脚本：
 
 ```shell
-sh kafka_delay_sqlite-20220201/bin/start.sh
+sh delay_message-20220201/bin/start.sh
 ```
 
-3）如需修改配置，可修改 kafka_delay_sqlite-20220201/bin/kafka.properties文件，设置自定义配置（重启服务）
+3）如需修改配置，可修改 delay_message-20220201/resources/kafka.properties文件，设置后需要重启服务，配置才生效
 
 默认配置如下：
 
@@ -157,7 +157,7 @@ sh kafka_delay_sqlite-20220201/bin/start.sh
 # kafka 连接url [ip:port,ip:port……]
 kafka.url=127.0.0.1:9092
 # 延时消息本地存储路径，建议使用绝对值
-kafka.delay.store.path=/data/kafka_delay
+kafka.delay.store.path=/var/delay_message/db
 # 统一延时消息topic
 kafka.delay.topic=common_delay_msg
 # 消费者组id
@@ -202,13 +202,13 @@ delayTime： 指定延时时限，**秒级别时间戳**
 
 ## 4.3 程序迁移
 
-复制 **延时消息保存目录** 到新机器，重启部署、启动程序即可。（该配置项所在目录 kafka.delay.store.path=/data/kafka_delay）
+复制 **延时消息保存目录** 到新机器，重启部署、启动程序即可。（该配置项所在目录 kafka.delay.store.path=/var/delay_message/db）
 
 
 
 ## 4.4 排查日志
 
-日志默认输出到 /logs/kafka_delay/ ，日志输出方式为异步输出。
+日志默认输出到 /var/delay_message/log ，日志输出方式为异步输出。
 
 system.log 记录了系统 info 级别以上的日志，info级别日志不是立刻输出的，所以程序重启时，可能会丢失部分日志
 
