@@ -13,6 +13,7 @@
         <fileSet>
             <directory>src/main/resources/</directory>
             <outputDirectory>resources</outputDirectory>
+            <fileMode>0644</fileMode>
         </fileSet>
         <!-- 部署相关脚本 -->
         <fileSet>
@@ -22,6 +23,7 @@
                 <!--要哪些文件-->
                 <include>**/*</include>
             </includes>
+            <fileMode>0755</fileMode>
         </fileSet>
     </fileSets>
 

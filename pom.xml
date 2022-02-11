@@ -78,9 +78,6 @@
     </dependencies>
     <build>
         <plugins>
-            <!--
-                maven编译工具
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -107,14 +104,18 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
+                    <!--<outputDirectory>${jar_dir}</outputDirectory>-->
                     <archive>
                         <manifest>
                             <mainClass>${mainClass}</mainClass>
+                            <!-- 把所依赖的 jar 包写入 manifest -->
                             <addClasspath>true</addClasspath>
+                            <!--<classpathPrefix>${jar_dir}/</classpathPrefix>-->
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>. ../resources/</Class-Path>
+                            <!--MANIFEST.MF 中 Class-Path 加入资源文件目录-->
+                            <Class-Path>../resources/</Class-Path>
                         </manifestEntries>
                     </archive>
                     <includes>
@@ -123,16 +124,13 @@
                     </includes>
                 </configuration>
             </plugin>
-            <!--
-                打成tar包工具
-            -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
-                        <descriptor>assembly.xml</descriptor>
+                        <descriptor>bin/assembly.xml</descriptor>
                     </descriptors>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                 </configuration>
