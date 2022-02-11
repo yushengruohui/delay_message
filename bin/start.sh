@@ -10,17 +10,8 @@ echo "base_dir : ${base_dir}"
 tar_name=$(basename "${base_dir}")
 project_name=${tar_name%-*}
 echo "project_name : ${project_name}"
-# jar包所在目录
-lib_dir=${base_dir}/lib
-echo "lib_dir : ${lib_dir}"
 # 检查程序是否已启动，如果已启动，则结束它
-check_pid=$(ps -ef | grep java | grep "${project_name}" | grep -v grep | awk '{print $2}')
-if [ x"${check_pid}" != x"" ]; then
-  echo "${project_name} is running.pid is ${check_pid}. try kill it"
-  kill -15 "${check_pid}"
-  sleep 10s
-  kill -9 "${check_pid}"
-fi
+sh -c ${bin_dir}/stop.sh
 # 初始化基础环境
 source /etc/profile
 ulimit -n 640000
@@ -41,7 +32,7 @@ jvm_config="\
 -XX:+HeapDumpOnOutOfMemoryError \
 -XX:HeapDumpPath=${base_dir}/ \
 "
-cd ${base_dir} || (echo "lib_dir not exist" && exit 1)
+cd ${base_dir} || exit 1
 #nohup java ${jvm_config} -jar ${lib_dir}/${tar_name}.jar >/dev/null 2>&1 &
-java ${jvm_config} -jar ${lib_dir}/${tar_name}.jar
+java ${jvm_config} -jar lib/${tar_name}.jar
 echo "${project_name} has started ,but may be exist exception.please check log"

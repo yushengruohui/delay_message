@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.yhh</groupId>
-    <artifactId>kafka_delay_sqlite</artifactId>
+    <artifactId>delay_message</artifactId>
     <version>20220201</version>
 
     <properties>
