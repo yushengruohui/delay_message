@@ -3,7 +3,7 @@
 <Configuration status="WARN" monitorInterval="60">
     <properties>
         <!--日志文件路径-->
-        <property name="log_file_path" value="/logs/kafka_delay"/>
+        <property name="log_file_path" value="/var/log/kafka_delay_sqlite"/>
         <!--日志保存期限[30天]-->
         <property name="log_save_duration" value="30d"/>
         <!--单日志文件最大占用空间-->
