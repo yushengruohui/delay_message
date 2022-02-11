@@ -22,7 +22,7 @@ public final class DelayConst {
      * 延时消息本地存储路径，建议使用绝对值。
      * 目录不存在时会自动创建目录
      */
-    public static final String STORE_PATH = PropertyUtils.getConfig(CONFIG_FILE, "kafka.delay.store.path", "/data/kafka/delay");
+    public static final String STORE_PATH = PropertyUtils.getConfig(CONFIG_FILE, "kafka.delay.store.path", "/var/delay_message/db");
     /**
      * 统一延时消息topic
      */
