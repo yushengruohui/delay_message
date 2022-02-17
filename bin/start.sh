@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "start.sh running"
+echo "start.sh begin running"
 # 获取脚本所在目录
 bin_dir=$(dirname "$(readlink -f "$0")")
 echo "bin_dir : ${bin_dir}"
@@ -12,10 +12,6 @@ project_name=${tar_name%-*}
 echo "project_name : ${project_name}"
 # 检查程序是否已启动，如果已启动，则结束它
 sh -c ${bin_dir}/stop.sh
-# 初始化基础环境
-source /etc/profile
-ulimit -n 640000
-ulimit -u 640000
 # 配置jvm的堆内存
 total_men=$(head /proc/meminfo -n 1 | awk '{print $2}')
 echo "total_men : ${total_men} kb"
@@ -32,7 +28,6 @@ jvm_config="\
 -XX:+HeapDumpOnOutOfMemoryError \
 -XX:HeapDumpPath=${base_dir}/ \
 "
-cd ${base_dir} || exit 1
-#nohup java ${jvm_config} -jar ${lib_dir}/${tar_name}.jar >/dev/null 2>&1 &
-java ${jvm_config} -jar lib/${tar_name}.jar
+#nohup java ${jvm_config} -jar ${base_dir}/lib/${tar_name}.jar >/dev/null 2>&1 &
+java ${jvm_config} -jar ${base_dir}/lib/${tar_name}.jar
 echo "${project_name} has started ,but may be exist exception.please check log"

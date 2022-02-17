@@ -1,6 +1,6 @@
 #!/bin/bash
 # 获取脚本所在目录
-echo "stop.sh running"
+echo "stop.sh begin running"
 bin_dir=$(dirname "$(readlink -f "$0")")
 echo "bin_dir : ${bin_dir}"
 # 项目基本目录
@@ -17,5 +17,5 @@ if [ x"${check_pid}" != x"" ]; then
   kill -15 "${check_pid}"
   sleep 10s
   kill -9 "${check_pid}"
-  echo "stop is ok"
+  echo "stop.sh is ok"
 fi
