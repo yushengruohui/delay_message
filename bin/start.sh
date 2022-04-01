@@ -1,7 +1,5 @@
 #!/bin/bash
-echo "start.sh begin running"
-# 获取脚本所在目录
-bin_dir=$(dirname "$(readlink -f "$0")")
+bin_dir=$(dirname "$(readlink -f "$0")") && dos2unix ${bin_dir}/*.sh && echo "start.sh begin running"
 echo "bin_dir : ${bin_dir}"
 # 项目基本目录
 base_dir=$(dirname "${bin_dir}")
