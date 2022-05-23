@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.yhh</groupId>
-    <artifactId>delay_message</artifactId>
-    <version>20220201</version>
+    <artifactId>delay-message-sqlite</artifactId>
+    <version>1.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <mainClass>com.yhh.KafkaDelayApp</mainClass>
+        <mainClass>com.yhh.DelayApp</mainClass>
         <slf4j_version>1.7.25</slf4j_version>
         <log4j2_version>2.17.1</log4j2_version>
         <disruptor_version>3.4.2</disruptor_version>

@@ -21,8 +21,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @author yhh 2021-11-28 13:15:30
  **/
-public class KafkaDelayApp {
-    private static final Logger log = LoggerFactory.getLogger(KafkaDelayApp.class);
+public class DelayApp {
+    private static final Logger log = LoggerFactory.getLogger(DelayApp.class);
 
     public static void main(String[] args) {
         int workers = Integer.parseInt(DelayConst.WORKERS);
