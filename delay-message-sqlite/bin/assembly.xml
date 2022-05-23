@@ -1,0 +1,51 @@
+<assembly>
+    <id>distribution</id>
+    <!-- 最终结果生成 tar.gz -->
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <!--设置需要输出文件-->
+    <fileSets>
+        <!-- 配置文件，静态资源 -->
+        <fileSet>
+            <directory>src/main/resources/</directory>
+            <outputDirectory>resources</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+        <!-- 部署相关脚本 -->
+        <fileSet>
+            <directory>bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <!--要哪些文件-->
+                <include>**/*</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <dependencySet>
+            <!--依赖包的输出目录-->
+            <outputDirectory>lib</outputDirectory>
+            <scope>runtime</scope>
+            <!--
+            <excludes>
+                <exclude>${project.groupId}:${project.artifactId}</exclude>
+            </excludes>
+            -->
+        </dependencySet>
+        <!--
+        <dependencySet>
+            &lt;!&ndash; 当前项目jar包的输出目录&ndash;&gt;
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>${project.groupId}:${project.artifactId}</include>
+            </includes>
+        </dependencySet>
+        -->
+    </dependencySets>
+</assembly>

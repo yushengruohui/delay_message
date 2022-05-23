@@ -65,9 +65,9 @@
 
 ## 2.3 实现细节
 
-1）一个业务处理流程使用一个sqlite数据库文件，可并发执行提高性能。
+1）一个业务处理流程使用一个本地数据库，可并发执行提高性能。
 
-2）使用雪花算法生成 id 。
+2）参考雪花算法，去除机器码，高效生成 id 。
 
 3）没有延时消息时，线程休眠一定时间，减低kafka集群、和本地io压力。
 
@@ -79,7 +79,7 @@
 
 1）kafka-client
 
-2）sqlite
+2）sqlite或者rocksdb
 
 3）slf4j+log4j2
 
@@ -125,23 +125,23 @@
 
 ## 4.2 安装
 
-1）在项目根目录执行 mvn clean package 打包后，会在 target 目录下生成  delay_message-20220201.tar.gz 文件
+1）在项目根目录执行 mvn clean package 打包后，会在 target 目录下生成  delay-message-sqlite-1.0.0.tar.gz 文件
 
-2）解压 delay_message-20220201.tar.gz 到指定安装目录(推荐： /usr/local/delay_msg ) ，执行启动脚本即可
+2）解压 delay-message-sqlite-1.0.0.tar.gz 到指定安装目录(推荐： /usr/local/delay_msg ) ，执行启动脚本即可
 
 解压指令：
 
 ```shell
-tar -zxvf delay_message-20220201.tar.gz
+tar -zxvf delay-message-sqlite-1.0.0.tar.gz
 ```
 
 执行启动脚本：
 
 ```shell
-sh delay_message-20220201/bin/start.sh
+sh delay-message-sqlite-1.0.0/bin/start.sh
 ```
 
-3）如需修改配置，可修改 delay_message-20220201/resources/kafka.properties文件，设置后需要重启服务，配置才生效
+3）如需修改配置，可修改 delay-message-sqlite-1.0.0/resources/kafka.properties文件，设置后需要重启服务，配置才生效
 
 默认配置如下：
 

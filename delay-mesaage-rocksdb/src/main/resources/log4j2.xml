@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--每隔60s扫描一次该文件-->
+<Configuration status="WARN" monitorInterval="60">
+    <properties>
+        <!--日志文件路径-->
+        <property name="log_file_path" value="/var/delay_message/log"/>
+        <!--日志保存期限[30天]-->
+        <property name="log_save_duration" value="30d"/>
+        <!--单日志文件最大占用空间-->
+        <property name="log_file_max_size" value="100MB"/>
+        <!--一天内最多生成多少个文件-->
+        <property name="log_file_max_amount_per_day" value="100"/>
+        <!--日志格式-->
+        <property name="console_log_format" value="[%-5level] [%d{HH:mm:ss}] %-35logger{1.} [%tid] [%thread] : %msg%n %rEx{full,filters(
+                  java.lang.reflect.Method,
+                  org.apache.catalina,
+                  sun.reflect,
+                  net.sf.cglib,
+                  ByCGLIB
+                  )}"/>
+        <property name="file_log_format"
+                  value="[%-5level] [%d{yyyy-MM-dd HH:mm:ss}] %logger{1.} [%tid] [%thread] : %msg%n %rEx{full,filters(
+                  java.lang.reflect.Method,
+                  org.apache.catalina,
+                  sun.reflect,
+                  net.sf.cglib,
+                  ByCGLIB
+                  )}"/>
+        <property name="error_file_log_format"
+                  value="[%-5level] [%d{yyyy-MM-dd HH:mm:ss}] %logger [%tid] [%thread] : %msg%n"/>
+    </properties>
+
+    <Appenders>
+        <!-- 输出到控制台 -->
+        <Console name="console_appender">
+            <PatternLayout charset="UTF-8" pattern="${console_log_format}"/>
+        </Console>
+
+        <!-- 备份系统日志文件 -->
+        <RollingRandomAccessFile name="system_log_appender"
+                                 fileName="${log_file_path}/system.log"
+                                 filePattern="${log_file_path}/%d{yyyy-MM-dd}/system-%i.log"
+                                 immediateFlush="false">
+            <PatternLayout charset="UTF-8" pattern="${file_log_format}"/>
+            <Policies>
+                <!--根据日期格式中最具体的时间单位来决定应该多久发生一次rollover-->
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <!-- 单个文件大小上限 -->
+                <SizeBasedTriggeringPolicy size="${log_file_max_size}"/>
+            </Policies>
+            <!-- %i的大小上限 -->
+            <DefaultRolloverStrategy max="${log_file_max_amount_per_day}">
+                <Delete basePath="${log_file_path}" maxDepth="2">
+                    <IfFileName glob="system-*.log"/>
+                    <IfLastModified age="${log_save_duration}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <!-- 备份系统异常日志文件 -->
+        <RollingRandomAccessFile name="system_error_log_appender"
+                                 fileName="${log_file_path}/exception.log"
+                                 filePattern="${log_file_path}/%d{yyyy-MM-dd}/exception-%i.log"
+                                 immediateFlush="true">
+            <PatternLayout charset="UTF-8" pattern="${error_file_log_format}"/>
+            <Filters>
+                <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="${log_file_max_size}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="${log_file_max_amount_per_day}">
+                <Delete basePath="${log_file_path}/exception" maxDepth="2">
+                    <IfFileName glob="exception-*.log"/>
+                    <IfLastModified age="${log_save_duration}"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <!--非本地调试环境下，建议注释掉 console_appender-->
+            <AppenderRef ref="console_appender"/>
+            <AppenderRef ref="system_log_appender"/>
+            <AppenderRef ref="system_error_log_appender"/>
+        </Root>
+
+        <!--<AsyncLogger level="debug" name="org.springframework.web.client" additivity="false">-->
+        <!--    <AppenderRef ref="remote_call_log_appender"/>-->
+        <!--</AsyncLogger>-->
+
+        <!-- <Logger name="com.xxx.dao" level="debug" /> -->
+        <!-- <Logger name="com.xxx.filter.ValidFilter" level="off" /> -->
+    </Loggers>
+</Configuration>
