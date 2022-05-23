@@ -32,48 +32,57 @@ public class MsgStoreTask implements Runnable {
         log.info("读取 kafka topic[{}] 的消息，保存延时消息到本地[{}]", DelayConst.DELAY_TOPIC, DelayConst.STORE_PATH);
         KafkaConsumer<String, String> consumer = KafkaUtils.createConsumer(DelayConst.KAFKA_URL, DelayConst.KAFKA_GROUP_ID);
         KafkaUtils.subscribe(consumer, DelayConst.DELAY_TOPIC, records -> {
-            long msEpoch = System.currentTimeMillis() / 10;
+            long exceptionEpoch = System.currentTimeMillis() / 100;
             int count = records.count();
-            List<DelayDto> records2 = new ArrayList<>(count);
+            List<DelayDto> toStoreQoList = new ArrayList<>(count);
             for (ConsumerRecord<String, String> record : records) {
                 String msg = record.value();
                 log.debug("收到延时消息 : {}", msg);
-                if (msg == null || msg.isEmpty() || !msg.startsWith("{")) {
-                    log.warn("抛弃异常kafka消息 msg : {}", msg);
+                DelayDto delayDto = toDelayDto(msg, exceptionEpoch);
+                if (delayDto == null) {
                     continue;
                 }
-                DelayDto delayDto;
-                try {
-                    delayDto = JsonUtils.read(msg, DelayDto.class);
-                } catch (Exception e) {
-                    log.warn("json 反序列化失败，抛弃异常kafka消息: {}", msg, e);
-                    continue;
-                }
-                Long delayTime = delayDto.getDelayTime();
-                if (delayTime == null || delayTime <= 0L || delayTime > msEpoch) {
-                    log.warn("delayTime[{}] 异常, 抛弃异常kafka消息: {}", delayTime, msg);
-                    continue;
-                }
-                String topic = delayDto.getTopic();
-                if (topic == null || topic.isEmpty()) {
-                    // todo 排除不存在的topic
-                    log.warn("topic 不能为空, 抛弃异常kafka消息: {}", msg);
-                    continue;
-                }
-                String message = delayDto.getMessage();
-                if (message == null || message.isEmpty()) {
-                    log.warn("message 不能为空, 抛弃异常kafka消息: {}", msg);
-                    continue;
-                }
-                // 保存到本地
-                delayDto.setId(IdUtils.nextId());
-                records2.add(delayDto);
+                toStoreQoList.add(delayDto);
             }
-            if (!records2.isEmpty()) {
+            if (!toStoreQoList.isEmpty()) {
                 // 批量插入
-                delayDao.batchStore(records2);
+                delayDao.batchStore(toStoreQoList);
             }
         });
+        log.error("MsgStoreTask 被异常中断，需人工排查问题");
+    }
+
+    private DelayDto toDelayDto(String msg, long exceptionEpoch) {
+        if (msg == null || msg.isEmpty() || msg.charAt(0) != '{') {
+            log.warn("抛弃异常kafka消息 msg : {}", msg);
+            return null;
+        }
+        DelayDto delayDto;
+        try {
+            delayDto = JsonUtils.read(msg, DelayDto.class);
+        } catch (Exception e) {
+            log.warn("json 反序列化失败，抛弃异常kafka消息: {}", msg, e);
+            return null;
+        }
+        Integer delayTime = delayDto.getDelayTime();
+        if (delayTime == null || delayTime <= 0L || delayTime > exceptionEpoch) {
+            log.warn("delayTime[{}] 异常, 抛弃异常kafka消息: {}", delayTime, msg);
+            return null;
+        }
+        String topic = delayDto.getTopic();
+        if (topic == null || topic.isEmpty()) {
+            // todo 排除不存在的topic
+            log.warn("topic 不能为空, 抛弃异常kafka消息: {}", msg);
+            return null;
+        }
+        String message = delayDto.getMessage();
+        if (message == null || message.isEmpty()) {
+            log.warn("message 不能为空, 抛弃异常kafka消息: {}", msg);
+            return null;
+        }
+        // 保存到本地
+        delayDto.setId(IdUtils.nextId());
+        return delayDto;
     }
 
 }

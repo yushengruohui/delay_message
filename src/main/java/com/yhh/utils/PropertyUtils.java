@@ -47,7 +47,7 @@ public final class PropertyUtils {
             return value;
         } catch (IOException e) {
             log.error("getConfig[读取配置项异常] || configFile : {} ", configFile, e);
-            ExitUtils.exit();
+            SystemUtils.exit();
         }
         return defaultValue;
     }
@@ -57,7 +57,7 @@ public final class PropertyUtils {
         String path = "";
         if (resource == null) {
             log.error("initClasspath[加载classpath失败]，请检查 jar 包内的 MANIFEST.MF 配置");
-            ExitUtils.exit();
+            SystemUtils.exit();
         } else {
             path = resource.getPath();
         }

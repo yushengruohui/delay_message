@@ -22,7 +22,7 @@ public final class IdUtils {
     /**
      * 时钟回拨最大容错时间
      */
-    private static final int CLOCK_ERROR_MAX_MS = 3;
+    private static final int CLOCK_ERROR_MAX_MS = 50;
     /**
      * 算法起始时间
      * 设置为系统需求开始时间就好
@@ -53,11 +53,11 @@ public final class IdUtils {
                 timestamp = System.currentTimeMillis();
                 if (timestamp < lastTimestamp) {
                     log.error("出现时间回拨，超过最大容忍时间也没有恢复正常。timestamp : {} || lastTimestamp : {}", timestamp, lastTimestamp);
-                    ExitUtils.exit();
+                    SystemUtils.exit();
                 }
             } else {
                 log.error("出现时间回拨，超过最大容忍时间也没有恢复正常。timestamp : {} || lastTimestamp : {}", timestamp, lastTimestamp);
-                ExitUtils.exit();
+                SystemUtils.exit();
             }
         }
         if (lastTimestamp == timestamp) {
