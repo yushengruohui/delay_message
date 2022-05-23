@@ -44,10 +44,11 @@ public class MsgStoreTask implements Runnable {
                 }
                 toStoreQoList.add(delayDto);
             }
-            if (!toStoreQoList.isEmpty()) {
-                // 批量插入
-                delayDao.batchStore(toStoreQoList);
+            if (toStoreQoList.isEmpty()) {
+                return;
             }
+            // 批量插入
+            delayDao.batchStore(toStoreQoList);
         });
         log.error("MsgStoreTask 被异常中断，需人工排查问题");
     }
