@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -91,7 +90,7 @@ public class KafkaUtils {
         boolean hasRecord = false;
         long idle = 1L;
         long busy = 100L;
-        while (Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
             // 循环轮询，如果有数据则返回，最多循环 pollMs 毫秒
             ConsumerRecords<String, String> records = consumer.poll(hasRecord ? busy : idle);
             hasRecord = !records.isEmpty();
@@ -115,7 +114,8 @@ public class KafkaUtils {
             try {
                 producer.send(record).get();
             } catch (Exception exception) {
-                boolean canRetry = exception instanceof RetriableException || exception instanceof ExecutionException || exception instanceof InterruptedException;
+                Throwable cause = exception.getCause();
+                boolean canRetry = cause instanceof RetriableException;
                 if (canRetry) {
                     log.warn("sendSync[kafka消息发送失败，准备重发] || 剩余次数 : {} || exception : {} || topic : {} || msgKey : {} || msg : {} ", i, exception, topic, msgKey, msg);
                     continue;
