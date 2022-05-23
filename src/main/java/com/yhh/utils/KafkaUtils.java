@@ -68,7 +68,6 @@ public class KafkaUtils {
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, String.valueOf(1 << 20));
-        properties.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, String.valueOf(500));
         properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, String.valueOf(10000));
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
