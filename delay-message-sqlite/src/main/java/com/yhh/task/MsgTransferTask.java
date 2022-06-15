@@ -44,7 +44,7 @@ public class MsgTransferTask implements Runnable {
             List<Long> idList = new ArrayList<>(recordsSize);
             for (DelayDto record : records) {
                 // 如果发送失败，重试最多16次，再失败则放弃这条消息
-                boolean isOk = KafkaUtils.sendSync(KAFKA_PRODUCER,
+                boolean isOk = KafkaUtils.syncSend(KAFKA_PRODUCER,
                         record.getTopic(),
                         record.getMessageKey(),
                         record.getMessage(),

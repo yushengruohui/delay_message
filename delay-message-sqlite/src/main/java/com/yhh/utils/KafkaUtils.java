@@ -39,10 +39,10 @@ public class KafkaUtils {
     public static KafkaProducer<String, String> createProducer(String bootstrapServers, int ackMode, int flight) {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.put(ProducerConfig.ACKS_CONFIG, String.valueOf(ackMode));
-        properties.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, String.valueOf(flight));
-        properties.put(ProducerConfig.RETRIES_CONFIG, "0");
-        properties.put(ProducerConfig.LINGER_MS_CONFIG, "0");
+        properties.put(ProducerConfig.ACKS_CONFIG, ackMode);
+        properties.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, flight);
+        properties.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, 0);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
@@ -87,19 +87,13 @@ public class KafkaUtils {
         consumer.subscribe(Collections.singleton(topic));
         OffsetCommitCallback ignoreResponse = (k, v) -> {
         };
-        boolean hasRecord = false;
-        long idle = 1L;
-        long busy = 100L;
         while (!Thread.currentThread().isInterrupted()) {
             // 循环轮询，如果有数据则返回，最多循环 pollMs 毫秒
-            ConsumerRecords<String, String> records = consumer.poll(hasRecord ? busy : idle);
-            hasRecord = !records.isEmpty();
-            if (hasRecord) {
+            ConsumerRecords<String, String> records = consumer.poll(5000L);
+            if (!records.isEmpty()) {
                 action.accept(records);
                 // 如果数据都处理成功，则异步提交这次poll最后拉取的消息偏移量
                 consumer.commitAsync(ignoreResponse);
-            } else {
-                SystemUtils.sleep(1000L);
             }
         }
     }
@@ -107,7 +101,7 @@ public class KafkaUtils {
     /**
      * 以同步方式发送消息
      */
-    public static boolean sendSync(KafkaProducer<String, String> producer, String topic, String msgKey, String msg, int maxRetry) {
+    public static boolean syncSend(KafkaProducer<String, String> producer, String topic, String msgKey, String msg, int maxRetry) {
         log.debug("topic : {} || msgKey : {} || msg : {} ", topic, msgKey, msg);
         for (int i = maxRetry - 1; i >= 0; i--) {
             ProducerRecord<String, String> record = new ProducerRecord<>(topic, msgKey, msg);
@@ -115,8 +109,7 @@ public class KafkaUtils {
                 producer.send(record).get();
             } catch (Exception exception) {
                 Throwable cause = exception.getCause();
-                boolean canRetry = cause instanceof RetriableException;
-                if (canRetry) {
+                if (cause instanceof RetriableException) {
                     log.warn("sendSync[kafka消息发送失败，准备重发] || 剩余次数 : {} || exception : {} || topic : {} || msgKey : {} || msg : {} ", i, exception, topic, msgKey, msg);
                     continue;
                 }
