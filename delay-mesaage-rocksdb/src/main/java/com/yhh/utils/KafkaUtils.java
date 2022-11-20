@@ -87,7 +87,8 @@ public class KafkaUtils {
         consumer.subscribe(Collections.singleton(topic));
         OffsetCommitCallback ignoreResponse = (k, v) -> {
         };
-        while (!Thread.currentThread().isInterrupted()) {
+        Thread currentThread = Thread.currentThread();
+        while (!currentThread.isInterrupted()) {
             // 循环轮询，如果有数据则返回，最多循环 pollMs 毫秒
             ConsumerRecords<String, String> records = consumer.poll(5000L);
             if (!records.isEmpty()) {
