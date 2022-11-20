@@ -26,7 +26,7 @@ public final class IdUtils {
     /**
      * 序列号位数
      */
-    private static final long SEQUENCE_BITS = 16L;
+    private static final long SEQUENCE_BITS = 14L;
     private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS;
     private static final long SEQUENCE_MASK = ~(-1L << SEQUENCE_BITS);
 
