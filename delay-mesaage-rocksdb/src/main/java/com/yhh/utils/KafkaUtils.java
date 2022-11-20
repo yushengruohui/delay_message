@@ -87,19 +87,13 @@ public class KafkaUtils {
         consumer.subscribe(Collections.singleton(topic));
         OffsetCommitCallback ignoreResponse = (k, v) -> {
         };
-        boolean hasRecord = false;
-        long idle = 1L;
-        long busy = 100L;
         while (!Thread.currentThread().isInterrupted()) {
             // 循环轮询，如果有数据则返回，最多循环 pollMs 毫秒
-            ConsumerRecords<String, String> records = consumer.poll(hasRecord ? busy : idle);
-            hasRecord = !records.isEmpty();
-            if (hasRecord) {
+            ConsumerRecords<String, String> records = consumer.poll(5000L);
+            if (!records.isEmpty()) {
                 action.accept(records);
                 // 如果数据都处理成功，则异步提交这次poll最后拉取的消息偏移量
                 consumer.commitAsync(ignoreResponse);
-            } else {
-                SystemUtils.sleep(1000L);
             }
         }
     }
