@@ -24,12 +24,7 @@ public final class IdUtils {
      */
     private static final int CLOCK_ERROR_MAX_MS = 50;
     /**
-     * 算法起始时间
-     * 设置为系统需求开始时间就好
-     */
-    private static final long SYSTEM_START_TIME = 1639929600000L;
-    /**
-     * 序列号
+     * 序列号位数
      */
     private static final long SEQUENCE_BITS = 16L;
     private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS;
@@ -65,22 +60,17 @@ public final class IdUtils {
             sequence = (sequence + 1) & SEQUENCE_MASK;
             if (sequence == 0) {
                 //seq 为0的时候表示是下一毫秒时间开始对seq做随机
-                timestamp = tilNextMillis(lastTimestamp);
+                timestamp = System.currentTimeMillis();
+                while (timestamp <= lastTimestamp) {
+                    timestamp = System.currentTimeMillis();
+                }
             }
         } else {
             //如果是新的ms开始
             sequence = 0;
         }
         lastTimestamp = timestamp;
-        return ((timestamp - SYSTEM_START_TIME) << TIMESTAMP_LEFT_SHIFT) | sequence;
-    }
-
-    private static long tilNextMillis(long lastTimestamp) {
-        long timestamp = System.currentTimeMillis();
-        while (timestamp <= lastTimestamp) {
-            timestamp = System.currentTimeMillis();
-        }
-        return timestamp;
+        return (timestamp << TIMESTAMP_LEFT_SHIFT) | sequence;
     }
 
 }
