@@ -32,14 +32,13 @@ public class MsgStoreTask implements Runnable {
         log.info("读取 kafka topic[{}] 的消息，保存延时消息到本地[{}]", DelayConst.DELAY_TOPIC, DelayConst.STORE_PATH);
         KafkaConsumer<String, String> consumer = KafkaUtils.createConsumer(DelayConst.KAFKA_URL, DelayConst.KAFKA_GROUP_ID);
         KafkaUtils.subscribe(consumer, DelayConst.DELAY_TOPIC, records -> {
-            long exceptionEpoch = System.currentTimeMillis() / 100;
             int count = records.count();
             List<String> keys = new ArrayList<>(count);
             List<String> values = new ArrayList<>(count);
             for (ConsumerRecord<String, String> record : records) {
                 String msg = record.value();
                 log.debug("收到延时消息 : {}", msg);
-                DelayDto delayDto = toDelayDto(msg, exceptionEpoch);
+                DelayDto delayDto = toDelayDto(msg);
                 if (delayDto == null) {
                     continue;
                 }
@@ -55,7 +54,7 @@ public class MsgStoreTask implements Runnable {
         log.error("MsgStoreTask 被异常中断，需人工排查问题");
     }
 
-    private DelayDto toDelayDto(String msg, long exceptionEpoch) {
+    private DelayDto toDelayDto(String msg) {
         if (msg == null || msg.isEmpty() || msg.charAt(0) != '{') {
             log.warn("抛弃异常kafka消息 msg : {}", msg);
             return null;
@@ -67,8 +66,8 @@ public class MsgStoreTask implements Runnable {
             log.warn("json 反序列化失败，抛弃异常kafka消息: {}", msg, e);
             return null;
         }
-        Integer delayTime = delayDto.getDelayTime();
-        if (delayTime == null || delayTime <= 0L || delayTime > exceptionEpoch) {
+        Long delayTime = delayDto.getDelayTime();
+        if (delayTime == null || delayTime <= 0L || delayTime > System.currentTimeMillis()) {
             log.warn("delayTime[{}] 异常, 抛弃异常kafka消息: {}", delayTime, msg);
             return null;
         }

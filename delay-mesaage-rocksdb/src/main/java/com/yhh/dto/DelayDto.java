@@ -23,7 +23,7 @@ public class DelayDto {
     /**
      * 延时时间戳[精准到秒级别]
      */
-    private Integer delayTime;
+    private Long delayTime;
 
     public String getId() {
         return id;
@@ -57,11 +57,11 @@ public class DelayDto {
         this.message = message;
     }
 
-    public Integer getDelayTime() {
+    public Long getDelayTime() {
         return delayTime;
     }
 
-    public void setDelayTime(Integer delayTime) {
+    public void setDelayTime(Long delayTime) {
         this.delayTime = delayTime;
     }
 }
