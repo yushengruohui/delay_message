@@ -65,8 +65,7 @@ public class MsgStoreTask implements Runnable {
             return null;
         }
         Long delayTime = delayDto.getDelayTime();
-        long exceptionEpoch = System.currentTimeMillis();
-        if (delayTime == null || delayTime <= 0L || delayTime > exceptionEpoch) {
+        if (delayTime == null || delayTime <= 0L || delayTime > System.currentTimeMillis()) {
             log.warn("delayTime[{}] 异常, 抛弃异常kafka消息: {}", delayTime, msg);
             return null;
         }
