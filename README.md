@@ -48,7 +48,8 @@
 
 ## 2.1 整体实现思路
 
-![delay](https://user-images.githubusercontent.com/39661172/148667487-1970d6d8-f68f-496a-8244-872a98631d24.png)
+![image](https://user-images.githubusercontent.com/39661172/202885257-e8a70b47-2657-4d75-844d-d3868ab480d0.png)
+
 
 
 ## 2.2 程序业务逻辑
