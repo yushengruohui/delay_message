@@ -33,7 +33,8 @@ public class MsgTransferTask implements Runnable {
 
     @Override
     public void run() {
-        while (Thread.currentThread().isInterrupted()) {
+        Thread currentThread = Thread.currentThread();
+        while (currentThread.isInterrupted()) {
             List<DelayDto> records = delayDao.scanTodoMsg();
             if (records.isEmpty()) {
                 log.debug("暂无待转发的延时消息，休眠一下");

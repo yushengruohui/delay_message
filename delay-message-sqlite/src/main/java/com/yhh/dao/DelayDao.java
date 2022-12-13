@@ -134,7 +134,7 @@ public class DelayDao {
                     preparedStatement.setString(2, qo.getTopic());
                     preparedStatement.setString(3, qo.getMessageKey());
                     preparedStatement.setString(4, qo.getMessage());
-                    preparedStatement.setInt(5, qo.getDelayTime());
+                    preparedStatement.setLong(5, qo.getDelayTime());
                     preparedStatement.addBatch();
                 }
                 preparedStatement.executeBatch();
