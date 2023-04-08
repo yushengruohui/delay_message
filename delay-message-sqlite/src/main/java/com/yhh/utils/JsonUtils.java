@@ -31,6 +31,13 @@ public final class JsonUtils {
         return OBJECT_MAPPER.readValue(jsonString, beanClass);
     }
 
+    public static <T> String write(T bean) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(bean);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(bean.toString(), e);
+        }
+    }
 
     private static ObjectMapper initObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();

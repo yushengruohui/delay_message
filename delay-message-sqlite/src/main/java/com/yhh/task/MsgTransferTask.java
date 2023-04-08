@@ -3,14 +3,15 @@ package com.yhh.task;
 import com.yhh.constant.DelayConst;
 import com.yhh.dao.DelayDao;
 import com.yhh.dto.DelayDto;
-import com.yhh.utils.KafkaUtils;
+import com.yhh.utils.JsonUtils;
 import com.yhh.utils.SystemUtils;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import com.yhh.utils.kafka.KafkaSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * 延时消息转发线程
@@ -19,13 +20,9 @@ import java.util.List;
  **/
 public class MsgTransferTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MsgTransferTask.class);
-    /**
-     * 重试次数上限
-     */
-    private static final int MAX_RETRY = 16;
     private final DelayDao delayDao;
     private static final long SLEEP_TIME = 1000L;
-    private static final KafkaProducer<String, String> KAFKA_PRODUCER = KafkaUtils.createProducer(DelayConst.KAFKA_URL, 1, Runtime.getRuntime().availableProcessors() * 2);
+    private static final KafkaSender KAFKA_PRODUCER = KafkaSender.of(DelayConst.KAFKA_URL);
 
     public MsgTransferTask(DelayDao delayDao) {
         this.delayDao = delayDao;
@@ -42,18 +39,29 @@ public class MsgTransferTask implements Runnable {
                 continue;
             }
             int recordsSize = records.size();
+            CountDownLatch countDownLatch = new CountDownLatch(recordsSize);
             List<Long> idList = new ArrayList<>(recordsSize);
             for (DelayDto record : records) {
+                // 如果发送失败，重试最多100次，再失败则放弃这条消息
+                Long id = record.getId();
                 // 如果发送失败，重试最多16次，再失败则放弃这条消息
-                boolean isOk = KafkaUtils.syncSend(KAFKA_PRODUCER,
-                        record.getTopic(),
-                        record.getMessageKey(),
-                        record.getMessage(),
-                        MAX_RETRY
+                KAFKA_PRODUCER.send(record.getTopic(), record.getMessageKey(), record.getMessage(),
+                        (msg, exception) -> {
+                            if (exception == null) {
+                                idList.add(id);
+                            } else {
+                                //todo 发送mq失败，异常处理
+                                log.warn("发送mq失败 || record : {}", JsonUtils.write(record));
+                            }
+                            countDownLatch.countDown();
+                        }
                 );
-                if (isOk) {
-                    idList.add(record.getId());
-                }
+            }
+            try {
+                countDownLatch.await();
+            } catch (InterruptedException e) {
+                log.error("线程异常中断", e);
+                Thread.currentThread().interrupt();
             }
             if (idList.isEmpty()) {
                 continue;

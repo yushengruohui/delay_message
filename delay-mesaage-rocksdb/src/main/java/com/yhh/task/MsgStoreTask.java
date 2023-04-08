@@ -5,9 +5,8 @@ import com.yhh.dao.DelayDao;
 import com.yhh.dto.DelayDto;
 import com.yhh.utils.IdUtils;
 import com.yhh.utils.JsonUtils;
-import com.yhh.utils.KafkaUtils;
+import com.yhh.utils.kafka.KafkaListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,8 +29,8 @@ public class MsgStoreTask implements Runnable {
     @Override
     public void run() {
         log.info("读取 kafka topic[{}] 的消息，保存延时消息到本地[{}]", DelayConst.DELAY_TOPIC, DelayConst.STORE_PATH);
-        KafkaConsumer<String, String> consumer = KafkaUtils.createConsumer(DelayConst.KAFKA_URL, DelayConst.KAFKA_GROUP_ID);
-        KafkaUtils.subscribe(consumer, DelayConst.DELAY_TOPIC, records -> {
+        KafkaListener consumer = KafkaListener.of(DelayConst.KAFKA_URL, DelayConst.KAFKA_GROUP_ID);
+        consumer.subscribe(DelayConst.DELAY_TOPIC, records -> {
             int count = records.count();
             List<String> keys = new ArrayList<>(count);
             List<String> values = new ArrayList<>(count);
