@@ -1,9 +1,8 @@
 package com.yhh.dao;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yhh.constant.DelayConst;
 import com.yhh.dto.DelayDto;
-import com.yhh.utils.JsonUtils;
+import com.yhh.utils.FstUtils;
 import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,11 +52,9 @@ public class DelayDao {
                     break;
                 }
                 byte[] value1 = iterator.value();
-                String v = new String(value1);
-                DelayDto dto = JsonUtils.read(v, DelayDto.class);
+                DelayDto dto = FstUtils.read(value1);
                 list.add(dto);
             }
-        } catch (JsonProcessingException ignored) {
         }
         return list;
         // log.info("scanTodoMsg || 耗时: {} ms ", System.currentTimeMillis() - start);
@@ -65,10 +62,8 @@ public class DelayDao {
 
     /**
      * 批量存储延时消息到本地数据库
-     *
-     * @param qoList
      */
-    public void batchStore(List<String> keys, List<String> values) {
+    public void batchStore(List<String> keys, List<byte[]> values) {
         // long start = System.currentTimeMillis();
         try (
                 WriteOptions writeOptions = new WriteOptions();
@@ -76,8 +71,7 @@ public class DelayDao {
         ) {
             for (int i = 0, recordsSize = values.size(); i < recordsSize; i++) {
                 String k = keys.get(i);
-                String v = values.get(i);
-                writeBatch.put(k.getBytes(), v.getBytes());
+                writeBatch.put(k.getBytes(), values.get(i));
             }
             rocksDB.write(writeOptions, writeBatch);
         } catch (RocksDBException e) {
@@ -89,8 +83,6 @@ public class DelayDao {
 
     /**
      * 批量删除本地延时消息
-     *
-     * @param idList 延时消息id
      */
     public void batchDelete(List<String> keys) {
         // long start = System.currentTimeMillis();

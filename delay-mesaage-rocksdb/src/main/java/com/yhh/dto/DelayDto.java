@@ -1,9 +1,13 @@
 package com.yhh.dto;
 
+import java.io.Serializable;
+
 /**
  * @author yhh 2021-12-19 22:17:59
  **/
-public class DelayDto {
+public class DelayDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+        
     /**
      * 唯一id
      */

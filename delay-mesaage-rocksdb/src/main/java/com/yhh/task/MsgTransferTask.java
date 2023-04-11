@@ -3,7 +3,6 @@ package com.yhh.task;
 import com.yhh.constant.DelayConst;
 import com.yhh.dao.DelayDao;
 import com.yhh.dto.DelayDto;
-import com.yhh.utils.JsonUtils;
 import com.yhh.utils.SystemUtils;
 import com.yhh.utils.kafka.KafkaSender;
 import org.slf4j.Logger;
@@ -50,7 +49,7 @@ public class MsgTransferTask implements Runnable {
                                 idList.add(id);
                             } else {
                                 //todo 发送mq失败，异常处理
-                                log.warn("发送mq失败 || record : {}", JsonUtils.write(record));
+                                log.warn("发送mq失败 || id : {}", id);
                             }
                             countDownLatch.countDown();
                         }

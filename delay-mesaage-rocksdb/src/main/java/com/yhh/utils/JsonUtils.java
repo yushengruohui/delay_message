@@ -39,7 +39,6 @@ public final class JsonUtils {
         }
     }
 
-
     private static ObjectMapper initObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         // json字符串中存在bean没有的属性，反序列化不抛出异常

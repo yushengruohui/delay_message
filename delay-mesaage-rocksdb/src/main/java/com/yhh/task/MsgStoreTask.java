@@ -3,6 +3,7 @@ package com.yhh.task;
 import com.yhh.constant.DelayConst;
 import com.yhh.dao.DelayDao;
 import com.yhh.dto.DelayDto;
+import com.yhh.utils.FstUtils;
 import com.yhh.utils.IdUtils;
 import com.yhh.utils.JsonUtils;
 import com.yhh.utils.kafka.KafkaListener;
@@ -33,7 +34,7 @@ public class MsgStoreTask implements Runnable {
         consumer.subscribe(DelayConst.DELAY_TOPIC, records -> {
             int count = records.count();
             List<String> keys = new ArrayList<>(count);
-            List<String> values = new ArrayList<>(count);
+            List<byte[]> values = new ArrayList<>(count);
             for (ConsumerRecord<String, String> record : records) {
                 String msg = record.value();
                 log.debug("收到延时消息 : {}", msg);
@@ -42,7 +43,7 @@ public class MsgStoreTask implements Runnable {
                     continue;
                 }
                 keys.add(delayDto.getId());
-                values.add(JsonUtils.write(delayDto));
+                values.add(FstUtils.write(delayDto));
             }
             if (values.isEmpty()) {
                 return;

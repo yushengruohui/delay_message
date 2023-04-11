@@ -20,6 +20,7 @@
         <kafka_version>1.1.0</kafka_version>
         <jackson_version>2.12.1</jackson_version>
         <rocksdb_version>6.25.3</rocksdb_version>
+        <fst_version>2.56</fst_version>
     </properties>
 
     <dependencies>
@@ -74,6 +75,11 @@
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
             <version>${rocksdb_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ruedigermoeller</groupId>
+            <artifactId>fst</artifactId>
+            <version>${fst_version}</version>
         </dependency>
     </dependencies>
     <build>
