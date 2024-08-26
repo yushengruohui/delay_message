@@ -13,7 +13,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <mainClass>com.yhh.DelayApp</mainClass>
+        <jdk.version>8</jdk.version>
+        <mainClass>com.yhh.DelayMsgApp</mainClass>
         <slf4j_version>1.7.25</slf4j_version>
         <log4j2_version>2.17.1</log4j2_version>
         <disruptor_version>3.4.2</disruptor_version>
@@ -21,6 +22,9 @@
         <jackson_version>2.12.1</jackson_version>
         <rocksdb_version>6.25.3</rocksdb_version>
         <fst_version>2.56</fst_version>
+        <junit-jupiter.version>5.11.0</junit-jupiter.version>
+        <!--<mockito.version>5.12.0</mockito.version>-->
+        <mockito.version>3.12.4</mockito.version>
     </properties>
 
     <dependencies>
@@ -50,11 +54,11 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j2_version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--    <groupId>com.lmax</groupId>-->
-        <!--    <artifactId>disruptor</artifactId>-->
-        <!--    <version>${disruptor_version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+            <version>${disruptor_version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
@@ -70,7 +74,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>${jackson_version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.rocksdb/rocksdbjni -->
         <dependency>
             <groupId>org.rocksdb</groupId>
             <artifactId>rocksdbjni</artifactId>
@@ -81,7 +84,32 @@
             <artifactId>fst</artifactId>
             <version>${fst_version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -89,43 +117,29 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <testSource>1.8</testSource>
-                    <testTarget>1.8</testTarget>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                    <testSource>${jdk.version}</testSource>
+                    <testTarget>${jdk.version}</testTarget>
                     <compilerArgument>-Xlint:unchecked</compilerArgument>
-                    <!--
-                    <compilerArguments>
-                        &lt;!&ndash; 编译时可引用jar目录，没有配置的话，默认引用本地maven仓库 &ndash;&gt;
-                        <extdirs>${jar_dir}</extdirs>
-                    </compilerArguments>
-                    -->
                 </configuration>
             </plugin>
-            <!--
-                基于maven-jar-plugin插件实现把依赖jar定义写入输出jar的META-INFO/MANIFEST文件
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
-                    <!--<outputDirectory>${jar_dir}</outputDirectory>-->
                     <archive>
                         <manifest>
                             <mainClass>${mainClass}</mainClass>
-                            <!-- 把所依赖的 jar 包写入 manifest -->
                             <addClasspath>true</addClasspath>
-                            <!--<classpathPrefix>${jar_dir}/</classpathPrefix>-->
                             <useUniqueVersions>false</useUniqueVersions>
                         </manifest>
                         <manifestEntries>
-                            <!--MANIFEST.MF 中 Class-Path 加入资源文件目录-->
                             <Class-Path>../resources/</Class-Path>
                         </manifestEntries>
                     </archive>
                     <includes>
-                        <!-- 当前项目的 jar 包内排除静态资源 -->
                         <include>**/*.class</include>
                     </includes>
                 </configuration>
@@ -152,19 +166,4 @@
             </plugin>
         </plugins>
     </build>
-    <repositories>
-        <!-- 优先选择国内阿里的maven仓库 -->
-        <repository>
-            <id>maven-ali</id>
-            <url>https://maven.aliyun.com/nexus/content/groups/public//</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>

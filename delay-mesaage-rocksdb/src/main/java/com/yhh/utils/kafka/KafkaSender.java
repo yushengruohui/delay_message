@@ -23,18 +23,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author yhh 2022-05-07 12:46:41
  **/
 public class KafkaSender {
+
     private static final Logger log = LoggerFactory.getLogger(KafkaSender.class);
 
     private final KafkaProducer<String, String> kafkaProducer;
-    private final KafkaProducer<String, String> kafkaSyncProducer;
 
     private KafkaSender(String bootstrapServers) {
-        Properties properties = createProducerProperties(bootstrapServers, Runtime.getRuntime().availableProcessors() * 2, 50);
+        int flight = Runtime.getRuntime().availableProcessors() * 2;
+        Properties properties = createProducerProperties(bootstrapServers, flight);
         kafkaProducer = new KafkaProducer<>(properties);
-        Properties properties2 = createProducerProperties(bootstrapServers, 1, 0);
-        kafkaSyncProducer = new KafkaProducer<>(properties2);
         Runtime.getRuntime().addShutdownHook(new Thread(kafkaProducer::close));
-        Runtime.getRuntime().addShutdownHook(new Thread(kafkaSyncProducer::close));
     }
 
     /**
@@ -47,7 +45,20 @@ public class KafkaSender {
         return new KafkaSender(bootstrapServers);
     }
 
-    private static Properties createProducerProperties(String bootstrapServers, int flight, int lingerMs) {
+    /**
+     * 异步发送消息。如果遇到可重试异常，最多重试100次。
+     *
+     * @param topic    话题
+     * @param msgKey   消息的key
+     * @param msg      消息体
+     * @param callback 回调处理对象
+     */
+    public void send(String topic, String msgKey, String msg, Callback callback) {
+        log.debug("topic: {} || msgKey : {}|| msg : {}", topic, msgKey, msg);
+        trySend(topic, msgKey, msg, callback, new AtomicInteger(100));
+    }
+
+    private static Properties createProducerProperties(String bootstrapServers, int flight) {
         Properties properties = new Properties();
         // 多个以 , 分割
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -60,7 +71,7 @@ public class KafkaSender {
         // 批量发送缓存大小，单位：字节。
         properties.put(ProducerConfig.BATCH_SIZE_CONFIG, 80 << 10);
         // 发送间隙少于多少毫秒，则合并入一个批次
-        properties.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, 50);
         // 消息缓存区大小，单位：字节。默认值 32MB
         properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 128 << 20);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
@@ -68,86 +79,6 @@ public class KafkaSender {
         properties.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
         return properties;
     }
-
-    /**
-     * 同步发送消息，适合金钱相关的业务场景（数据一致性和顺序要求高)。
-     *
-     * @param topic 话题
-     * @param msg   消息体
-     * @return
-     */
-    public boolean syncSend(String topic, String msg) {
-        return syncSend(topic, null, msg);
-    }
-
-    /**
-     * 同步发送消息，适合金钱相关的业务场景（数据一致性和顺序要求高)。
-     *
-     * @param topic  话题
-     * @param msgKey 消息的key
-     * @param msg    消息体
-     * @return true: 成功发送
-     */
-    public boolean syncSend(String topic, String msgKey, String msg) {
-        log.debug("topic: {} || msgKey : {}|| msg : {}", topic, msgKey, msg);
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, msgKey, msg);
-        try {
-            kafkaSyncProducer.send(record).get();
-            return true;
-        } catch (Exception exception) {
-            Throwable cause = exception.getCause();
-            log.error("syncSend[kafka消息发送失败] || exception : {} || topic : {} || msgKey : {} || msg : {} ", cause, topic, msgKey, msg);
-        }
-        return false;
-    }
-
-    /**
-     * 异步发送消息。如果遇到可重试异常，最多重试100次。
-     *
-     * @param topic 话题
-     * @param msg   消息体
-     */
-    public void send(String topic, String msg) {
-        send(topic, null, msg);
-    }
-
-    /**
-     * 异步发送消息。如果遇到可重试异常，最多重试100次。
-     *
-     * @param topic  话题
-     * @param msgKey 消息的key
-     * @param msg    消息体
-     */
-    public void send(String topic, String msgKey, String msg) {
-        send(topic, msgKey, msg, null);
-    }
-
-    /**
-     * 异步发送消息。如果遇到可重试异常，最多重试100次。
-     *
-     * @param topic    话题
-     * @param msgKey   消息的key
-     * @param msg      消息体
-     * @param callback 回调处理对象
-     */
-    public void send(String topic, String msgKey, String msg, Callback callback) {
-        send(topic, msgKey, msg, callback, 100);
-    }
-
-    /**
-     * 异步发送消息。如果遇到可重试异常，可重试 maxRetries 次。
-     *
-     * @param topic      话题
-     * @param msgKey     消息的key
-     * @param msg        消息体
-     * @param callback   回调处理对象
-     * @param maxRetries 最大重试次数
-     */
-    public void send(String topic, String msgKey, String msg, Callback callback, int maxRetries) {
-        log.debug("topic: {} || msgKey : {}|| msg : {}", topic, msgKey, msg);
-        trySend(topic, msgKey, msg, callback, new AtomicInteger(maxRetries));
-    }
-
 
     /**
      * 尽量发送消息，如果是可重试异常，可以最多重试retry次。

@@ -1,7 +1,6 @@
 package com.yhh.task;
 
-import com.yhh.constant.DelayConst;
-import com.yhh.dao.DelayDao;
+import com.yhh.dao.DelayMsgDao;
 import com.yhh.dto.DelayDto;
 import com.yhh.utils.SystemUtils;
 import com.yhh.utils.kafka.KafkaSender;
@@ -18,13 +17,18 @@ import java.util.concurrent.CountDownLatch;
  * @author yhh 2021-12-19 22:32:35
  **/
 public class MsgTransferTask implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(MsgTransferTask.class);
-    private static final long SLEEP_TIME = 1000L;
-    private static final KafkaSender KAFKA_PRODUCER = KafkaSender.of(DelayConst.KAFKA_URL);
-    private final DelayDao delayDao;
 
-    public MsgTransferTask(DelayDao delayDao) {
+    private static final Logger log = LoggerFactory.getLogger(MsgTransferTask.class);
+
+    private static final long SLEEP_TIME = 1000L;
+
+    private final KafkaSender kafkaSender;
+
+    private final DelayMsgDao delayDao;
+
+    public MsgTransferTask(DelayMsgDao delayDao, KafkaSender kafkaSender) {
         this.delayDao = delayDao;
+        this.kafkaSender = kafkaSender;
     }
 
     @Override
@@ -37,36 +41,40 @@ public class MsgTransferTask implements Runnable {
                 SystemUtils.sleep(SLEEP_TIME);
                 continue;
             }
-            int recordsSize = records.size();
-            CountDownLatch countDownLatch = new CountDownLatch(recordsSize);
-            List<String> idList = new ArrayList<>(recordsSize);
-            for (DelayDto record : records) {
-                // 如果发送失败，重试最多100次，再失败则放弃这条消息
-                String id = record.getId();
-                KAFKA_PRODUCER.send(record.getTopic(), record.getMessageKey(), record.getMessage(),
-                        (msg, exception) -> {
-                            if (exception == null) {
-                                idList.add(id);
-                            } else {
-                                //todo 发送mq失败，异常处理
-                                log.warn("发送mq失败 || id : {}", id);
-                            }
-                            countDownLatch.countDown();
-                        }
-                );
+
+            int count = records.size();
+            ArrayList<String> toDeleteIds = new ArrayList<>(count);
+            transfer(records, new CountDownLatch(count), toDeleteIds);
+
+            if (!toDeleteIds.isEmpty()) {
+                delayDao.batchDelete(toDeleteIds);
             }
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                log.error("线程异常中断", e);
-                Thread.currentThread().interrupt();
-            }
-            if (idList.isEmpty()) {
-                continue;
-            }
-            delayDao.batchDelete(idList);
         }
         log.error("MsgTransferTask 异常中断，需人工排查");
+    }
+
+    public void transfer(List<DelayDto> records, CountDownLatch countDownLatch, List<String> toDeleteIds) {
+        for (DelayDto record : records) {
+            String id = record.getId();
+            String topic = record.getTopic();
+            String key = record.getMessageKey();
+            String message = record.getMessage();
+            kafkaSender.send(topic, key, message, (msg, exception) -> {
+                if (exception == null) {
+                    toDeleteIds.add(id);
+                } else {
+                    //todo 发送mq失败，异常处理
+                    log.warn("发送mq失败 || id : {}", id);
+                }
+                countDownLatch.countDown();
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            log.error("线程异常中断", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

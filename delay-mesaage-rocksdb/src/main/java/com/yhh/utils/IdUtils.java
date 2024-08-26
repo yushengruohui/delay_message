@@ -14,24 +14,29 @@ import java.util.concurrent.locks.LockSupport;
  * @author yusheng
  */
 public final class IdUtils {
-    private static final Logger log = LoggerFactory.getLogger(IdUtils.class);
 
-    private IdUtils() {
-    }
+    private static final Logger log = LoggerFactory.getLogger(IdUtils.class);
 
     /**
      * 时钟回拨最大容错时间
      */
     private static final int CLOCK_ERROR_MAX_MS = 50;
+
     /**
      * 序列号
      */
     private static final long SEQUENCE_BITS = 14L;
+
     private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS;
+
     private static final long SEQUENCE_MASK = ~(-1L << SEQUENCE_BITS);
 
     private static long sequence = 0L;
+
     private static long lastTimestamp = -1L;
+
+    private IdUtils() {
+    }
 
     /**
      * 根据雪花算法生成增势id

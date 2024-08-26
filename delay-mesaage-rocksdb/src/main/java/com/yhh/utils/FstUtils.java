@@ -15,8 +15,6 @@ import org.nustaq.serialization.FSTConfiguration;
  * @author yhh 2023-04-11 19:41:40
  **/
 public class FstUtils {
-    private FstUtils() {
-    }
 
     /**
      * 为每个线程创建一个可复用的 fst，避免内部创建的流竞争锁冲突
@@ -28,6 +26,8 @@ public class FstUtils {
         return configuration;
     });
 
+    private FstUtils() {
+    }
 
     public static byte[] write(Object bean) {
         return getFst().asByteArray(bean);
@@ -41,4 +41,5 @@ public class FstUtils {
     private static FSTConfiguration getFst() {
         return conf.get();
     }
+
 }

@@ -28,12 +28,15 @@ import java.util.function.Consumer;
  * @author yhh 2022-05-07 19:58:15
  **/
 public class KafkaListener {
+
     private static final OffsetCommitCallback IGNORE_RESPONSE = (k, v) -> {
     };
+
     /**
      * 长轮询，最大连接时限
      */
     private static final long LONG_POLL_MS = 5000L;
+
     private final KafkaConsumer<String, String> kafkaConsumer;
 
     private KafkaListener(String bootstrapServers, String groupId) {

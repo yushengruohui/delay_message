@@ -1,9 +1,11 @@
 package com.yhh;
 
 import com.yhh.constant.DelayConst;
-import com.yhh.dao.DelayDao;
+import com.yhh.dao.DelayMsgDao;
 import com.yhh.task.MsgStoreTask;
 import com.yhh.task.MsgTransferTask;
+import com.yhh.utils.kafka.KafkaListener;
+import com.yhh.utils.kafka.KafkaSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,17 +23,23 @@ import java.util.concurrent.TimeUnit;
  *
  * @author yhh 2021-11-28 13:15:30
  **/
-public class DelayApp {
-    private static final Logger log = LoggerFactory.getLogger(DelayApp.class);
+public class DelayMsgApp {
+
+    private static final Logger log = LoggerFactory.getLogger(DelayMsgApp.class);
 
     public static void main(String[] args) {
         int workers = Integer.parseInt(DelayConst.WORKERS);
-        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(workers * 2, workers * 2, 0L, TimeUnit.MILLISECONDS, new SynchronousQueue<>());
+        int workSum = workers * 2;
+        KafkaSender kafkaSender = KafkaSender.of(DelayConst.KAFKA_URL);
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(workSum, workSum,
+                0L, TimeUnit.MILLISECONDS, new SynchronousQueue<>());
         for (int i = 0; i < workers; i++) {
-            DelayDao delayDao = new DelayDao(i);
-            threadPool.execute(new MsgStoreTask(delayDao));
-            threadPool.execute(new MsgTransferTask(delayDao));
+            DelayMsgDao delayDao = new DelayMsgDao(i);
+            KafkaListener kafkaListener = KafkaListener.of(DelayConst.KAFKA_URL, DelayConst.KAFKA_GROUP_ID);
+            threadPool.execute(new MsgStoreTask(delayDao, kafkaListener));
+            threadPool.execute(new MsgTransferTask(delayDao, kafkaSender));
         }
         log.info("kafka 延时消息程序启动成功");
     }
+
 }

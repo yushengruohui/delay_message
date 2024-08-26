@@ -15,10 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  **/
 public final class JsonUtils {
 
+    private static final ObjectMapper OBJECT_MAPPER = initObjectMapper();
+
     private JsonUtils() {
     }
-
-    private static final ObjectMapper OBJECT_MAPPER = initObjectMapper();
 
     /**
      * 把json字符串反序列化为对象

@@ -4,6 +4,7 @@ package com.yhh.utils;
  * @author yhh 2021-12-23 23:32:32
  **/
 public final class SystemUtils {
+
     private SystemUtils() {
     }
 
@@ -28,4 +29,5 @@ public final class SystemUtils {
             Thread.currentThread().interrupt();
         }
     }
+
 }

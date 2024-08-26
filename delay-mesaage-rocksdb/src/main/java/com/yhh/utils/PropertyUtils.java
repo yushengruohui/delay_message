@@ -14,11 +14,12 @@ import java.util.Properties;
  **/
 public final class PropertyUtils {
 
+    private static final Logger log = LoggerFactory.getLogger(PropertyUtils.class);
+
+    private static final String CLASSPATH = initClasspath();
+
     private PropertyUtils() {
     }
-
-    private static final Logger log = LoggerFactory.getLogger(PropertyUtils.class);
-    private static final String CLASSPATH = initClasspath();
 
     /**
      * 获取配置文件的指定配置
@@ -67,4 +68,5 @@ public final class PropertyUtils {
         }
         return path;
     }
+
 }

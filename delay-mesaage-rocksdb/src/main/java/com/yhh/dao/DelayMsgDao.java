@@ -14,12 +14,13 @@ import java.util.List;
 /**
  * @author yhh 2021-12-22 22:02:18
  **/
-public class DelayDao {
-    private static final Logger log = LoggerFactory.getLogger(DelayDao.class);
+public class DelayMsgDao {
+
+    private static final Logger log = LoggerFactory.getLogger(DelayMsgDao.class);
+
     private final RocksDB rocksDB;
 
-
-    public DelayDao(int dbId) {
+    public DelayMsgDao(int dbId) {
         String dbDir = DelayConst.STORE_PATH + "/" + dbId;
         File dir = new File(dbDir);
         dir.mkdirs();
@@ -30,7 +31,7 @@ public class DelayDao {
             rocksDB = RocksDB.open(options, dbDir);
         } catch (RocksDBException e) {
             log.error("RocksDbHelper[初始化失败] || dbDir : {} ", dbDir, e);
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to initialize RocksDB at path: " + dbDir, e);
         }
         Runtime.getRuntime().addShutdownHook(new Thread(rocksDB::close));
     }
@@ -41,7 +42,6 @@ public class DelayDao {
      * @return
      */
     public List<DelayDto> scanTodoMsg() {
-        // long start = System.currentTimeMillis();
         byte[] bytes = String.valueOf(System.currentTimeMillis() / 1000).getBytes();
         List<DelayDto> list = new ArrayList<>();
         try (RocksIterator iterator = rocksDB.newIterator()) {
@@ -57,14 +57,12 @@ public class DelayDao {
             }
         }
         return list;
-        // log.info("scanTodoMsg || 耗时: {} ms ", System.currentTimeMillis() - start);
     }
 
     /**
      * 批量存储延时消息到本地数据库
      */
     public void batchStore(List<String> keys, List<byte[]> values) {
-        // long start = System.currentTimeMillis();
         try (
                 WriteOptions writeOptions = new WriteOptions();
                 WriteBatch writeBatch = new WriteBatch()
@@ -78,14 +76,12 @@ public class DelayDao {
             // 异常概率非常低，修改为不用检测的异常
             throw new RuntimeException(e);
         }
-        // log.info("方法 : batchStore || 耗时: {} ms ", System.currentTimeMillis() - start);
     }
 
     /**
      * 批量删除本地延时消息
      */
     public void batchDelete(List<String> keys) {
-        // long start = System.currentTimeMillis();
         try (
                 WriteOptions writeOptions = new WriteOptions();
                 WriteBatch writeBatch = new WriteBatch()
@@ -98,7 +94,6 @@ public class DelayDao {
             // 异常概率非常低，修改为不用检测的异常
             throw new RuntimeException(e);
         }
-        // log.info("方法 : batchDelete || 耗时: {} ms ", System.currentTimeMillis() - start);
     }
 
     private static int ByteArraysCompare(byte[] x, byte[] y) {
