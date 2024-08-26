@@ -33,8 +33,8 @@ public class FstUtils {
         return getFst().asByteArray(bean);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T read(byte[] bean) {
-        //noinspection unchecked
         return (T) getFst().asObject(bean);
     }
 
