@@ -1,4 +1,4 @@
-package com.yhh.utils;
+package com.github.delaymsg.utils;
 
 /**
  * @author yhh 2021-12-23 23:32:32

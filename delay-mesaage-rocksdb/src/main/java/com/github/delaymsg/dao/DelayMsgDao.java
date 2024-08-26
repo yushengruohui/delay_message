@@ -1,8 +1,8 @@
-package com.yhh.dao;
+package com.github.delaymsg.dao;
 
-import com.yhh.constant.DelayConst;
-import com.yhh.dto.DelayDto;
-import com.yhh.utils.FstUtils;
+import com.github.delaymsg.constant.DelayConst;
+import com.github.delaymsg.dto.DelayDto;
+import com.github.delaymsg.utils.FstUtils;
 import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,10 @@ public class DelayMsgDao {
     private static final Logger log = LoggerFactory.getLogger(DelayMsgDao.class);
 
     private final RocksDB rocksDB;
+
+    public DelayMsgDao(RocksDB rocksDB) {
+        this.rocksDB = rocksDB;
+    }
 
     public DelayMsgDao(int dbId) {
         String dbDir = DelayConst.STORE_PATH + "/" + dbId;

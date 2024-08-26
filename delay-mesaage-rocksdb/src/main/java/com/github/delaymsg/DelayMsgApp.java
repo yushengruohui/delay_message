@@ -1,11 +1,11 @@
-package com.yhh;
+package com.github.delaymsg;
 
-import com.yhh.constant.DelayConst;
-import com.yhh.dao.DelayMsgDao;
-import com.yhh.task.MsgStoreTask;
-import com.yhh.task.MsgTransferTask;
-import com.yhh.utils.kafka.KafkaListener;
-import com.yhh.utils.kafka.KafkaSender;
+import com.github.delaymsg.constant.DelayConst;
+import com.github.delaymsg.dao.DelayMsgDao;
+import com.github.delaymsg.task.MsgStoreTask;
+import com.github.delaymsg.task.MsgTransferTask;
+import com.github.delaymsg.utils.kafka.KafkaListener;
+import com.github.delaymsg.utils.kafka.KafkaSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

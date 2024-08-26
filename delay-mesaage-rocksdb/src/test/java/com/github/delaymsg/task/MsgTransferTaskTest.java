@@ -1,28 +1,23 @@
-package com.yhh.task;
+package com.github.delaymsg.task;
 
-import com.yhh.dao.DelayMsgDao;
-import com.yhh.dto.DelayDto;
-import com.yhh.utils.kafka.KafkaSender;
-import org.apache.kafka.clients.producer.KafkaProducer;
+import com.github.delaymsg.dao.DelayMsgDao;
+import com.github.delaymsg.dto.DelayDto;
+import com.github.delaymsg.utils.kafka.KafkaSender;
+import org.apache.kafka.clients.producer.Callback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author HuaHui Yu 2024-08-26 11:26:33
@@ -33,21 +28,19 @@ class MsgTransferTaskTest {
     KafkaSender kafkaSender;
 
     @Mock
-    KafkaProducer<String, String> kafkaProducer;
-
-    @Mock
     DelayMsgDao delayDao;
 
-    @Spy
     @InjectMocks
     MsgTransferTask msgTransferTask;
 
     @Test
     void transfer_empty_msg() {
-        // 运行任务
-        msgTransferTask.transfer(Collections.emptyList(), new CountDownLatch(0), new ArrayList<>(Collections.emptyList().size()));
+        Mockito.doReturn(new ArrayList<>())
+                .when(delayDao)
+                .scanTodoMsg();
 
-        // 验证没有调用 kafkaSender
+        msgTransferTask.transferMsg();
+
         verify(kafkaSender, never()).send(anyString(), anyString(), anyString(), any());
         verify(delayDao, never()).batchDelete(anyList());
     }
@@ -59,18 +52,20 @@ class MsgTransferTaskTest {
         message.setTopic("11");
         message.setMessageKey("22");
         message.setMessage("122");
-        message.setDelayTime(2L);
+        message.setTriggerTime(2L);
         List<DelayDto> messages = new ArrayList<>();
         messages.add(message);
         when(delayDao.scanTodoMsg()).thenReturn(messages);
 
-        // 运行任务
-        List<String> toDeletedIds = new ArrayList<>(messages.size());
-        toDeletedIds.add(message.getId());
-        msgTransferTask.transfer(messages, new CountDownLatch(0), toDeletedIds);
+        doAnswer(invocation -> {
+            Callback callback = invocation.getArgument(3);
+            callback.onCompletion(null, null);
+            return null;
+        }).when(kafkaSender).send(any(), any(), any(), any());
 
-        // 验证调用了发送和删除
-        verify(kafkaSender, times(1)).send(anyString(), anyString(), anyString(), any());
+        msgTransferTask.transferMsg();
+
+        verify(delayDao, times(1)).batchDelete(anyList());
     }
 
     @BeforeEach

@@ -1,4 +1,4 @@
-package com.yhh.utils;
+package com.github.delaymsg.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +51,10 @@ public final class PropertyUtils {
             SystemUtils.exit();
         }
         return defaultValue;
+    }
+
+    public static String getClasspath() {
+        return CLASSPATH;
     }
 
     private static String initClasspath() {

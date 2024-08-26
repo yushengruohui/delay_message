@@ -1,6 +1,6 @@
-package com.yhh.utils;
+package com.github.delaymsg.utils;
 
-import com.yhh.dto.DelayDto;
+import com.github.delaymsg.dto.DelayDto;
 import org.nustaq.serialization.FSTConfiguration;
 
 /**

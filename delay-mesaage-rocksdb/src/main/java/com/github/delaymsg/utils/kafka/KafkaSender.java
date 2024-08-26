@@ -1,4 +1,4 @@
-package com.yhh.utils.kafka;
+package com.github.delaymsg.utils.kafka;
 
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -27,6 +27,10 @@ public class KafkaSender {
     private static final Logger log = LoggerFactory.getLogger(KafkaSender.class);
 
     private final KafkaProducer<String, String> kafkaProducer;
+
+    public KafkaSender(KafkaProducer<String, String> kafkaProducer) {
+        this.kafkaProducer = kafkaProducer;
+    }
 
     private KafkaSender(String bootstrapServers) {
         int flight = Runtime.getRuntime().availableProcessors() * 2;

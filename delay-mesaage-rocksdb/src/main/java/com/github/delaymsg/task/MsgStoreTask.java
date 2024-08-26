@@ -1,12 +1,12 @@
-package com.yhh.task;
+package com.github.delaymsg.task;
 
-import com.yhh.constant.DelayConst;
-import com.yhh.dao.DelayMsgDao;
-import com.yhh.dto.DelayDto;
-import com.yhh.utils.FstUtils;
-import com.yhh.utils.IdUtils;
-import com.yhh.utils.JsonUtils;
-import com.yhh.utils.kafka.KafkaListener;
+import com.github.delaymsg.constant.DelayConst;
+import com.github.delaymsg.dao.DelayMsgDao;
+import com.github.delaymsg.dto.DelayDto;
+import com.github.delaymsg.utils.FstUtils;
+import com.github.delaymsg.utils.IdUtils;
+import com.github.delaymsg.utils.JsonUtils;
+import com.github.delaymsg.utils.kafka.KafkaListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class MsgStoreTask implements Runnable {
             log.warn("json 反序列化失败，抛弃异常kafka消息: {}", msg, e);
             return null;
         }
-        Long delayTime = delayDto.getDelayTime();
+        Long delayTime = delayDto.getTriggerTime();
         if (delayTime == null || delayTime <= 0L || delayTime > System.currentTimeMillis()) {
             log.warn("delayTime[{}] 异常, 抛弃异常kafka消息: {}", delayTime, msg);
             return null;

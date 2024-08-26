@@ -1,6 +1,6 @@
-package com.yhh.constant;
+package com.github.delaymsg.constant;
 
-import com.yhh.utils.PropertyUtils;
+import com.github.delaymsg.utils.PropertyUtils;
 
 /**
  * @author yhh 2021-12-19 10:48:36

@@ -1,7 +1,7 @@
-package com.yhh.task;
+package com.github.delaymsg.task;
 
-import com.yhh.dao.DelayMsgDao;
-import com.yhh.utils.kafka.KafkaListener;
+import com.github.delaymsg.dao.DelayMsgDao;
+import com.github.delaymsg.utils.kafka.KafkaListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.TopicPartition;
@@ -42,11 +42,11 @@ class MsgStoreTaskTest {
     @EmptySource
     @ValueSource(strings = {"111}"
             , "{111}"
-            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"delayTime\":0}"
-            , "{\"topic\":\"\",\"messageKey\":\"1\",\"message\":\"1\",\"delayTime\":9999999999999}"
-            , "{\"topic\":null,\"messageKey\":\"1\",\"message\":\"1\",\"delayTime\":1}"
-            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"\",\"delayTime\":1}"
-            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":null,\"delayTime\":1}"
+            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":0}"
+            , "{\"topic\":\"\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":9999999999999}"
+            , "{\"topic\":null,\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":1}"
+            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"\",\"triggerTime\":1}"
+            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":null,\"triggerTime\":1}"
     })
     void storeMsg_bad_msg(String msg) {
         List<ConsumerRecord<String, String>> records1 = new ArrayList<>();
@@ -62,11 +62,13 @@ class MsgStoreTaskTest {
     void storeMsg() {
         List<ConsumerRecord<String, String>> records1 = new ArrayList<>();
         records1.add(new ConsumerRecord<>("1", 1, 0, "1",
-                "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"delayTime\":1}"));
+                "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":1}"));
         Map<TopicPartition, List<ConsumerRecord<String, String>>> map = new HashMap<>();
         map.put(new TopicPartition("1", 1), records1);
         ConsumerRecords<String, String> records = new ConsumerRecords<>(map);
+
         msgStoreTask.storeMsg(records);
+
         verify(delayDao, times(1)).batchStore(any(), anyList());
     }
 

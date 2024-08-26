@@ -1,4 +1,4 @@
-package com.yhh.utils;
+package com.github.delaymsg.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -29,14 +29,6 @@ public final class JsonUtils {
      */
     public static <T> T read(String jsonString, Class<T> beanClass) throws JsonProcessingException {
         return OBJECT_MAPPER.readValue(jsonString, beanClass);
-    }
-
-    public static <T> String write(T bean) {
-        try {
-            return OBJECT_MAPPER.writeValueAsString(bean);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(bean.toString(), e);
-        }
     }
 
     private static ObjectMapper initObjectMapper() {

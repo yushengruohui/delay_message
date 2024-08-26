@@ -14,7 +14,7 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <jdk.version>8</jdk.version>
-        <mainClass>com.yhh.DelayMsgApp</mainClass>
+        <mainClass>com.github.delaymsg.DelayMsgApp</mainClass>
         <slf4j_version>1.7.25</slf4j_version>
         <log4j2_version>2.17.1</log4j2_version>
         <disruptor_version>3.4.2</disruptor_version>

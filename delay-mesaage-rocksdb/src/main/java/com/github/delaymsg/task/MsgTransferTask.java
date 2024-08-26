@@ -1,9 +1,9 @@
-package com.yhh.task;
+package com.github.delaymsg.task;
 
-import com.yhh.dao.DelayMsgDao;
-import com.yhh.dto.DelayDto;
-import com.yhh.utils.SystemUtils;
-import com.yhh.utils.kafka.KafkaSender;
+import com.github.delaymsg.dao.DelayMsgDao;
+import com.github.delaymsg.dto.DelayDto;
+import com.github.delaymsg.utils.SystemUtils;
+import com.github.delaymsg.utils.kafka.KafkaSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,25 +35,26 @@ public class MsgTransferTask implements Runnable {
     public void run() {
         Thread currentThread = Thread.currentThread();
         while (!currentThread.isInterrupted()) {
-            List<DelayDto> records = delayDao.scanTodoMsg();
-            if (records.isEmpty()) {
-                log.debug("暂无待转发的延时消息，休眠一下");
-                SystemUtils.sleep(SLEEP_TIME);
-                continue;
-            }
-
-            int count = records.size();
-            ArrayList<String> toDeleteIds = new ArrayList<>(count);
-            transfer(records, new CountDownLatch(count), toDeleteIds);
-
-            if (!toDeleteIds.isEmpty()) {
-                delayDao.batchDelete(toDeleteIds);
-            }
+            transferMsg();
         }
         log.error("MsgTransferTask 异常中断，需人工排查");
     }
 
-    public void transfer(List<DelayDto> records, CountDownLatch countDownLatch, List<String> toDeleteIds) {
+    public void transferMsg() {
+        List<DelayDto> messages = delayDao.scanTodoMsg();
+        if (messages.isEmpty()) {
+            log.debug("暂无待转发的延时消息，休眠一下");
+            SystemUtils.sleep(SLEEP_TIME);
+            return;
+        }
+
+        transferAndDeleted(messages);
+    }
+
+    private void transferAndDeleted(List<DelayDto> records) {
+        int count = records.size();
+        List<String> toDeleteIds = new ArrayList<>(count);
+        CountDownLatch countDownLatch = new CountDownLatch(count);
         for (DelayDto record : records) {
             String id = record.getId();
             String topic = record.getTopic();
@@ -69,6 +70,14 @@ public class MsgTransferTask implements Runnable {
                 countDownLatch.countDown();
             });
         }
+        awaitFinish(countDownLatch);
+
+        if (!toDeleteIds.isEmpty()) {
+            delayDao.batchDelete(toDeleteIds);
+        }
+    }
+
+    private void awaitFinish(CountDownLatch countDownLatch) {
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

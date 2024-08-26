@@ -1,4 +1,4 @@
-package com.yhh.utils;
+package com.github.delaymsg.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

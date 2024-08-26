@@ -1,4 +1,6 @@
-package com.yhh.dto;
+package com.github.delaymsg.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 
@@ -30,14 +32,15 @@ public class DelayDto implements Serializable {
     private String message;
 
     /**
-     * 延时时间戳[精准到秒级别]
+     * 延时触发时间点.时间戳[精准到秒级别]
      */
-    private Long delayTime;
+    private Long triggerTime;
 
     public String getId() {
         return id;
     }
 
+    @JsonIgnore
     public void setId(String id) {
         this.id = id;
     }
@@ -66,12 +69,12 @@ public class DelayDto implements Serializable {
         this.message = message;
     }
 
-    public Long getDelayTime() {
-        return delayTime;
+    public Long getTriggerTime() {
+        return triggerTime;
     }
 
-    public void setDelayTime(Long delayTime) {
-        this.delayTime = delayTime;
+    public void setTriggerTime(Long triggerTime) {
+        this.triggerTime = triggerTime;
     }
 
 }

@@ -1,4 +1,4 @@
-package com.yhh.utils.kafka;
+package com.github.delaymsg.utils.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -39,7 +39,17 @@ public class KafkaListener {
 
     private final KafkaConsumer<String, String> kafkaConsumer;
 
+    public KafkaListener(KafkaConsumer<String, String> kafkaConsumer) {
+        this.kafkaConsumer = kafkaConsumer;
+    }
+
     private KafkaListener(String bootstrapServers, String groupId) {
+        Properties properties = buildProperties(bootstrapServers, groupId);
+        kafkaConsumer = new KafkaConsumer<>(properties);
+        Runtime.getRuntime().addShutdownHook(new Thread(kafkaConsumer::close));
+    }
+
+    private Properties buildProperties(String bootstrapServers, String groupId) {
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -59,8 +69,7 @@ public class KafkaListener {
         // properties.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "305000");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        kafkaConsumer = new KafkaConsumer<>(properties);
-        Runtime.getRuntime().addShutdownHook(new Thread(kafkaConsumer::close));
+        return properties;
     }
 
     /**
