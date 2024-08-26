@@ -72,7 +72,7 @@
 
 3）批量处理
 
-4）本地存储使用 sqlite | rocksdb ，高效读写
+4）本地存储使用  rocksdb ，高效读写
 
 
 
@@ -80,7 +80,7 @@
 
 1）kafka-client
 
-2）sqlite或者rocksdb
+2）rocksdb
 
 3）slf4j+log4j2
 
@@ -170,11 +170,11 @@ kafka.delay.workers=2
   "topic": "实际业务topic",
   "messageKey": "消息的key，影响发送到那个分区",
   "message": "业务消息内容",
-  "delayTime": 1641470704
+  "triggerTime": 1641470704
 }
 ```
 
-delayTime： 指定延时时限，**秒级别时间戳**
+triggerTime： 指定延时消息转发任务触发时间点，**秒级别时间戳**
 
 
 
@@ -185,7 +185,7 @@ delayTime： 指定延时时限，**秒级别时间戳**
   "topic": "cancel_order",
   "messageKey": "123456",
   "message": "{\"orderId\":123456789123456,\"userId\":\"yhh\"}",
-  "delayTime": 1641470704
+  "triggerTime": 1641470704
 }
 ```
 
@@ -274,7 +274,7 @@ exception.log 记录了系统 warn 级别以上的日志，日志配置为立即
 
 
 
-作者邮箱：1950249908@qq.com ，如有问题，欢迎骚扰。
+作者邮箱：1950249908@qq.com
 
 源码路径：
 
