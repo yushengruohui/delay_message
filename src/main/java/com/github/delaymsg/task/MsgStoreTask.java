@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 抽取、保存延时消息线程
@@ -49,12 +50,10 @@ public class MsgStoreTask implements Runnable {
         for (ConsumerRecord<String, String> record : records) {
             String msg = record.value();
             log.debug("收到延时消息 : {}", msg);
-            DelayDto delayDto = toDelayDto(msg);
-            if (delayDto == null) {
-                continue;
-            }
-            keys.add(delayDto.getId());
-            values.add(FstUtils.write(delayDto));
+            toDelayDto(msg).ifPresent(dto -> {
+                keys.add(dto.getId());
+                values.add(FstUtils.write(dto));
+            });
         }
         if (values.isEmpty()) {
             return;
@@ -63,37 +62,17 @@ public class MsgStoreTask implements Runnable {
         delayDao.batchStore(keys, values);
     }
 
-    private DelayDto toDelayDto(String msg) {
+    private Optional<DelayDto> toDelayDto(String msg) {
         if (msg == null || msg.isEmpty() || msg.charAt(0) != '{') {
             log.warn("抛弃异常kafka消息 msg : {}", msg);
-            return null;
+            return Optional.empty();
         }
-        DelayDto delayDto;
-        try {
-            delayDto = JsonUtils.read(msg, DelayDto.class);
-        } catch (Exception e) {
-            log.warn("json 反序列化失败，抛弃异常kafka消息: {}", msg, e);
-            return null;
-        }
-        Long delayTime = delayDto.getTriggerTime();
-        if (delayTime == null || delayTime <= 0L || delayTime > System.currentTimeMillis()) {
-            log.warn("delayTime[{}] 异常, 抛弃异常kafka消息: {}", delayTime, msg);
-            return null;
-        }
-        String topic = delayDto.getTopic();
-        if (topic == null || topic.isEmpty()) {
-            // todo 排除不存在的topic
-            log.warn("topic 不能为空, 抛弃异常kafka消息: {}", msg);
-            return null;
-        }
-        String message = delayDto.getMessage();
-        if (message == null || message.isEmpty()) {
-            log.warn("message 不能为空, 抛弃异常kafka消息: {}", msg);
-            return null;
-        }
-        // 保存到本地
-        delayDto.setId(delayTime.toString() + IdUtils.nextId());
-        return delayDto;
+        return JsonUtils.read(msg, DelayDto.class)
+                .filter(dto -> dto.checkFormat())
+                .map(dto -> {
+                    dto.setId(dto.getTriggerTime().toString() + IdUtils.nextId());
+                    return dto;
+                });
     }
 
 }

@@ -1,6 +1,8 @@
 package com.github.delaymsg.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -8,6 +10,8 @@ import java.io.Serializable;
  * @author yhh 2021-12-19 22:17:59
  **/
 public class DelayDto implements Serializable {
+
+    private static final Logger log = LoggerFactory.getLogger(DelayDto.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -75,6 +79,22 @@ public class DelayDto implements Serializable {
 
     public void setTriggerTime(Long triggerTime) {
         this.triggerTime = triggerTime;
+    }
+
+    public boolean checkFormat() {
+        if (triggerTime == null || triggerTime <= 0L) {
+            log.warn("triggerTime[{}] 异常", triggerTime);
+            return false;
+        }
+        if (topic == null || topic.isEmpty()) {
+            log.warn("topic 不能为空");
+            return false;
+        }
+        if (message == null || message.isEmpty()) {
+            log.warn("message 不能为空");
+            return false;
+        }
+        return true;
     }
 
 }

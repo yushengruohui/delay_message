@@ -3,6 +3,10 @@ package com.github.delaymsg.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 
 /**
@@ -14,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author yusheng 2020-04-14 00:29
  **/
 public final class JsonUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(JsonUtils.class);
 
     private static final ObjectMapper OBJECT_MAPPER = initObjectMapper();
 
@@ -27,8 +33,14 @@ public final class JsonUtils {
      * @param beanClass  [一定要有无参构造函数]
      * @return
      */
-    public static <T> T read(String jsonString, Class<T> beanClass) throws JsonProcessingException {
-        return OBJECT_MAPPER.readValue(jsonString, beanClass);
+    public static <T> Optional<T> read(String jsonString, Class<T> beanClass) {
+        try {
+            T readValue = OBJECT_MAPPER.readValue(jsonString, beanClass);
+            return Optional.ofNullable(readValue);
+        } catch (JsonProcessingException e) {
+            log.warn("json 反序列化失败，jsonString: {}", jsonString, e);
+        }
+        return Optional.empty();
     }
 
     private static ObjectMapper initObjectMapper() {
