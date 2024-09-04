@@ -96,7 +96,7 @@
 
 并发处理数：1
 
-已本地简单测试[sqlite案例]，性能表现：
+性能表现：
 
 1） 1个并发处理数就可以达到1秒存储、转发、删除 约15000条延时消息，2 个可以达到 30000条/s……
 
@@ -126,23 +126,23 @@
 
 ## 4.2 安装
 
-1）在项目根目录执行 mvn clean package 打包后，会在 target 目录下生成  delay-message-sqlite-1.0.0.tar.gz 文件
+1）在项目根目录执行 mvn clean package 打包后，会在 target 目录下生成  kafka-delay-message-1.0.0.tar.gz 文件
 
-2）解压 delay-message-sqlite-1.0.0.tar.gz 到指定安装目录(推荐： /usr/local/delaymsg) ，执行启动脚本即可
+2）解压 kafka-delay-message-1.0.0.tar.gz 到指定安装目录(推荐： /usr/local/delaymsg) ，执行启动脚本即可
 
 解压指令：
 
 ```shell
-tar -zxvf delay-message-sqlite-1.0.0.tar.gz
+tar -zxvf kafka-delay-message-1.0.0.tar.gz
 ```
 
 执行启动脚本：
 
 ```shell
-sh delay-message-sqlite-1.0.0/bin/start.sh
+sh kafka-delay-message-1.0.0/bin/start.sh
 ```
 
-3）如需修改配置，可修改 delay-message-sqlite-1.0.0/resources/kafka.properties文件，设置后需要重启服务，配置才生效
+3）如需修改配置，可修改 kafka-delay-message-1.0.0/resources/kafka.properties文件，设置后需要重启服务，配置才生效
 
 默认配置如下：
 
@@ -195,13 +195,13 @@ triggerTime： 指定延时消息转发任务触发时间点，**秒级别时间
 
 ## 4.3 程序迁移
 
-复制 **延时消息保存目录** 到新机器，重启部署、启动程序即可。（该配置项所在目录 kafka.delay.store.path=/var/delay_message/db）
+复制 **延时消息保存目录** 到新机器，重启部署、启动程序即可。（该配置项所在目录 kafka.delay.store.path=/var/delaymsg/db）
 
 
 
 ## 4.4 排查日志
 
-日志默认输出到 /var/delaymsg/log ，日志输出方式为异步输出。
+日志默认输出到 /var/delaymsg/log 。
 
 system.log 记录了系统 info 级别以上的日志，info级别日志不是立刻输出的，所以程序重启时，可能会丢失部分日志
 
@@ -236,7 +236,7 @@ exception.log 记录了系统 warn 级别以上的日志，日志配置为立即
 
 3） 每个 kafka.delay.workers 约需要 200 mb 内存，默认配置为2 , jvm 建议配置 1 GB 以上内存，避免频繁gc 。
 
- **workers 增大后，不要再减小**，否则会导致部分 sqlite 数据库没有线程访问，消息丢失。
+ **workers 增大后，不要再减小**，否则会导致部分本地延时消息文件没有线程访问，消息丢失。
 
 并发处理数越大，延时消息处理效率越高，但需要注意不要大于topic的分区数。
 
