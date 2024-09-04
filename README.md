@@ -128,7 +128,7 @@
 
 1）在项目根目录执行 mvn clean package 打包后，会在 target 目录下生成  delay-message-sqlite-1.0.0.tar.gz 文件
 
-2）解压 delay-message-sqlite-1.0.0.tar.gz 到指定安装目录(推荐： /usr/local/delay_msg ) ，执行启动脚本即可
+2）解压 delay-message-sqlite-1.0.0.tar.gz 到指定安装目录(推荐： /usr/local/delaymsg) ，执行启动脚本即可
 
 解压指令：
 
@@ -150,7 +150,7 @@ sh delay-message-sqlite-1.0.0/bin/start.sh
 # kafka 连接url [ip:port,ip:port……]
 kafka.url=127.0.0.1:9092
 # 延时消息本地存储路径，建议使用绝对值
-kafka.delay.store.path=/var/delay_message/db
+kafka.delay.store.path=/var/delaymsg/db
 # 统一延时消息topic
 kafka.delay.topic=common_delay_msg
 # 消费者组id
@@ -201,7 +201,7 @@ triggerTime： 指定延时消息转发任务触发时间点，**秒级别时间
 
 ## 4.4 排查日志
 
-日志默认输出到 /var/delay_message/log ，日志输出方式为异步输出。
+日志默认输出到 /var/delaymsg/log ，日志输出方式为异步输出。
 
 system.log 记录了系统 info 级别以上的日志，info级别日志不是立刻输出的，所以程序重启时，可能会丢失部分日志
 
@@ -253,8 +253,6 @@ exception.log 记录了系统 warn 级别以上的日志，日志配置为立即
 5） 当前配置为正常情况下不会抛弃消息模式，但程序重启时，存在重复发送消息的可能，下游业务系统需要做好幂等性处理。
 
 如果kafka集群异常，当前配置为重新发送16次，如果仍不能恢复过来，则抛弃当前消息，实际生产环境里，基本不可能出现该场景。
-
-如果确定消息不能抛弃，需要自行修改源码(MsgTransferTask.run，KafkaUtils.send（……))，重新打包、部署。
 
 
 
