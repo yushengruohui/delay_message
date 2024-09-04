@@ -3,7 +3,7 @@
 <Configuration status="WARN" monitorInterval="60">
     <properties>
         <!--日志文件路径-->
-        <property name="log_file_path" value="/var/delay_message/log"/>
+        <property name="log_file_path" value="/var/delaymsg/log"/>
         <!--日志保存期限[30天]-->
         <property name="log_save_duration" value="30d"/>
         <!--单日志文件最大占用空间-->
@@ -11,23 +11,12 @@
         <!--一天内最多生成多少个文件-->
         <property name="log_file_max_amount_per_day" value="100"/>
         <!--日志格式-->
-        <property name="console_log_format" value="[%-5level] [%d{HH:mm:ss}] %-35logger{1.} [%tid] [%thread] : %msg%n %rEx{full,filters(
-                  java.lang.reflect.Method,
-                  org.apache.catalina,
-                  sun.reflect,
-                  net.sf.cglib,
-                  ByCGLIB
-                  )}"/>
+        <property name="console_log_format"
+                  value="[%-5level] [%d{HH:mm:ss}] %-35logger{1.} [%tid] [%thread] : %msg%n%ex"/>
         <property name="file_log_format"
-                  value="[%-5level] [%d{yyyy-MM-dd HH:mm:ss}] %logger{1.} [%tid] [%thread] : %msg%n %rEx{full,filters(
-                  java.lang.reflect.Method,
-                  org.apache.catalina,
-                  sun.reflect,
-                  net.sf.cglib,
-                  ByCGLIB
-                  )}"/>
+                  value="[%-5level] [%d{yyyy-MM-dd HH:mm:ss}] %logger{1.} [%tid] [%thread] : %msg%n%ex"/>
         <property name="error_file_log_format"
-                  value="[%-5level] [%d{yyyy-MM-dd HH:mm:ss}] %logger [%tid] [%thread] : %msg%n"/>
+                  value="[%-5level] [%d{yyyy-MM-dd HH:mm:ss}] %logger [%tid] [%thread] : %msg%n%ex"/>
     </properties>
 
     <Appenders>
@@ -82,17 +71,11 @@
 
     <Loggers>
         <Root level="info">
-            <!--非本地调试环境下，建议注释掉 console_appender-->
-            <AppenderRef ref="console_appender"/>
+            <!--<AppenderRef ref="console_appender"/>-->
             <AppenderRef ref="system_log_appender"/>
             <AppenderRef ref="system_error_log_appender"/>
         </Root>
-
-        <!--<AsyncLogger level="debug" name="org.springframework.web.client" additivity="false">-->
-        <!--    <AppenderRef ref="remote_call_log_appender"/>-->
-        <!--</AsyncLogger>-->
-
-        <!-- <Logger name="com.xxx.dao" level="debug" /> -->
-        <!-- <Logger name="com.xxx.filter.ValidFilter" level="off" /> -->
+        <!--<Logger name="com.github.delaymsg.task.MsgStoreTask" level="debug"/>-->
+        <!--<Logger name="com.github.delaymsg.kafka.KafkaSender" level="debug"/>-->
     </Loggers>
 </Configuration>
