@@ -3,6 +3,7 @@ package com.github.delaymsg.dao;
 import com.github.delaymsg.constant.DelayConst;
 import com.github.delaymsg.dto.DelayDto;
 import com.github.delaymsg.utils.FstUtils;
+import com.github.delaymsg.utils.TimeUtil;
 import org.rocksdb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,13 +47,14 @@ public class DelayMsgDao {
      * @return
      */
     public List<DelayDto> scanTodoMsg() {
-        byte[] bytes = String.valueOf(System.currentTimeMillis() / 1000).getBytes();
+        long unixTime = TimeUtil.unixTime();
         List<DelayDto> list = new ArrayList<>();
         try (RocksIterator iterator = rocksDB.newIterator()) {
             int i = 0;
             for (iterator.seekToFirst(); iterator.isValid() && i < 10000; iterator.next(), i++) {
                 byte[] key1 = iterator.key();
-                if (ByteArraysCompare(key1, bytes) > 0) {
+                long triggerTime = TimeUtil.extractTriggerTime(new String(key1));
+                if (triggerTime > unixTime) {
                     break;
                 }
                 byte[] value1 = iterator.value();
@@ -77,7 +79,6 @@ public class DelayMsgDao {
             }
             rocksDB.write(writeOptions, writeBatch);
         } catch (RocksDBException e) {
-            // 异常概率非常低，修改为不用检测的异常
             throw new RuntimeException(e);
         }
     }
@@ -95,23 +96,8 @@ public class DelayMsgDao {
             }
             rocksDB.write(writeOptions, writeBatch);
         } catch (RocksDBException e) {
-            // 异常概率非常低，修改为不用检测的异常
             throw new RuntimeException(e);
         }
-    }
-
-    private static int ByteArraysCompare(byte[] x, byte[] y) {
-        int length1 = x.length;
-        int length2 = y.length;
-        int maxLength = Math.min(length1, length2);
-        for (int i = 0; i < maxLength; i++) {
-            byte b1Byte = x[i];
-            byte b2Byte = y[i];
-            if (b1Byte != b2Byte) {
-                return Byte.compare(b1Byte, b2Byte);
-            }
-        }
-        return length1 - length2;
     }
 
 }

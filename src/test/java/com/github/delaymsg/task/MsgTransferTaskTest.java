@@ -2,7 +2,7 @@ package com.github.delaymsg.task;
 
 import com.github.delaymsg.dao.DelayMsgDao;
 import com.github.delaymsg.dto.DelayDto;
-import com.github.delaymsg.utils.kafka.KafkaSender;
+import com.github.delaymsg.kafka.KafkaSender;
 import org.apache.kafka.clients.producer.Callback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ class MsgTransferTaskTest {
                 .when(delayDao)
                 .scanTodoMsg();
 
-        msgTransferTask.transferMsg();
+        msgTransferTask.scanAndTransfer();
 
         verify(kafkaSender, never()).send(anyString(), anyString(), anyString(), any());
         verify(delayDao, never()).batchDelete(anyList());
@@ -63,7 +63,7 @@ class MsgTransferTaskTest {
             return null;
         }).when(kafkaSender).send(any(), any(), any(), any());
 
-        msgTransferTask.transferMsg();
+        msgTransferTask.scanAndTransfer();
 
         verify(delayDao, times(1)).batchDelete(anyList());
     }

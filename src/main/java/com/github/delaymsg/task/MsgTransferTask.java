@@ -2,8 +2,8 @@ package com.github.delaymsg.task;
 
 import com.github.delaymsg.dao.DelayMsgDao;
 import com.github.delaymsg.dto.DelayDto;
+import com.github.delaymsg.kafka.KafkaSender;
 import com.github.delaymsg.utils.SystemUtils;
-import com.github.delaymsg.utils.kafka.KafkaSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +35,12 @@ public class MsgTransferTask implements Runnable {
     public void run() {
         Thread currentThread = Thread.currentThread();
         while (!currentThread.isInterrupted()) {
-            transferMsg();
+            scanAndTransfer();
         }
         log.error("MsgTransferTask 异常中断，需人工排查");
     }
 
-    public void transferMsg() {
+    public void scanAndTransfer() {
         List<DelayDto> messages = delayDao.scanTodoMsg();
         if (messages.isEmpty()) {
             log.debug("暂无待转发的延时消息，休眠一下");
@@ -56,28 +56,31 @@ public class MsgTransferTask implements Runnable {
         List<String> toDeleteIds = new ArrayList<>(count);
         CountDownLatch countDownLatch = new CountDownLatch(count);
         for (DelayDto record : records) {
-            String id = record.getId();
-            String topic = record.getTopic();
-            String key = record.getMessageKey();
-            String message = record.getMessage();
-            kafkaSender.send(topic, key, message, (msg, exception) -> {
-                if (exception == null) {
-                    toDeleteIds.add(id);
-                } else {
-                    //todo 发送mq失败，异常处理
-                    log.warn("发送mq失败 || id : {}", id);
-                }
-                countDownLatch.countDown();
-            });
+            sendMsg(record, countDownLatch, toDeleteIds);
         }
-        awaitFinish(countDownLatch);
 
+        awaitSend(countDownLatch);
         if (!toDeleteIds.isEmpty()) {
             delayDao.batchDelete(toDeleteIds);
         }
     }
 
-    private void awaitFinish(CountDownLatch countDownLatch) {
+    private void sendMsg(DelayDto record, CountDownLatch countDownLatch, List<String> toDeleteIds) {
+        String id = record.getId();
+        String topic = record.getTopic();
+        String key = record.getMessageKey();
+        String message = record.getMessage();
+        kafkaSender.send(topic, key, message, (msg, exception) -> {
+            if (exception == null) {
+                toDeleteIds.add(id);
+            } else {
+                log.warn("发送mq失败 || id : {}", id);
+            }
+            countDownLatch.countDown();
+        });
+    }
+
+    private void awaitSend(CountDownLatch countDownLatch) {
         try {
             countDownLatch.await();
         } catch (InterruptedException e) {

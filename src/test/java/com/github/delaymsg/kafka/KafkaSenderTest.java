@@ -1,4 +1,4 @@
-package com.github.delaymsg.utils.kafka;
+package com.github.delaymsg.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.junit.jupiter.api.BeforeEach;

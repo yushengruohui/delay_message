@@ -3,10 +3,10 @@ package com.github.delaymsg.task;
 import com.github.delaymsg.constant.DelayConst;
 import com.github.delaymsg.dao.DelayMsgDao;
 import com.github.delaymsg.dto.DelayDto;
+import com.github.delaymsg.kafka.KafkaListener;
 import com.github.delaymsg.utils.FstUtils;
-import com.github.delaymsg.utils.IdUtils;
 import com.github.delaymsg.utils.JsonUtils;
-import com.github.delaymsg.utils.kafka.KafkaListener;
+import com.github.delaymsg.utils.TimeUtil;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.slf4j.Logger;
@@ -70,7 +70,7 @@ public class MsgStoreTask implements Runnable {
         return JsonUtils.read(msg, DelayDto.class)
                 .filter(dto -> dto.checkFormat())
                 .map(dto -> {
-                    dto.setId(dto.getTriggerTime().toString() + IdUtils.nextId());
+                    dto.setId(TimeUtil.buildTriggerKey(dto.getTriggerTime()));
                     return dto;
                 });
     }

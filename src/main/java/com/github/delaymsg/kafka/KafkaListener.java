@@ -1,4 +1,4 @@
-package com.github.delaymsg.utils.kafka;
+package com.github.delaymsg.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -49,29 +49,6 @@ public class KafkaListener {
         Runtime.getRuntime().addShutdownHook(new Thread(kafkaConsumer::close));
     }
 
-    private Properties buildProperties(String bootstrapServers, String groupId) {
-        Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        // 自动提交偏移量，不推荐启用。如果业务处理异常，会丢失一批数据。
-        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-        // ENABLE_AUTO_COMMIT_CONFIG 为 true 时，下面这个配置才生效
-        // properties.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000");
-        // 从最久消息开始消费
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        // 测试是否有数据时可能会采用从最新消息开始消费
-        // properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        // poll()返回的最大记录条数[默认500]
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500");
-        // 当kafka版本低于0.10.1时，要求 ： 批量记录处理时间 < heartbeat.interval.ms < session.timeout.ms < request.timeout.ms
-        // properties.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "10000");
-        // properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
-        // properties.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "305000");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
-        return properties;
-    }
-
     /**
      * 创建kafka消息监听器（kafka消费者助手)
      *
@@ -114,6 +91,29 @@ public class KafkaListener {
                 kafkaConsumer.commitAsync(IGNORE_RESPONSE);
             }
         }
+    }
+
+    private Properties buildProperties(String bootstrapServers, String groupId) {
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        // 自动提交偏移量，不推荐启用。如果业务处理异常，会丢失一批数据。
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+        // ENABLE_AUTO_COMMIT_CONFIG 为 true 时，下面这个配置才生效
+        // properties.put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG, "5000");
+        // 从最久消息开始消费
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        // 测试是否有数据时可能会采用从最新消息开始消费
+        // properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        // poll()返回的最大记录条数[默认500]
+        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "500");
+        // 当kafka版本低于0.10.1时，要求 ： 批量记录处理时间 < heartbeat.interval.ms < session.timeout.ms < request.timeout.ms
+        // properties.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, "10000");
+        // properties.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, "30000");
+        // properties.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, "305000");
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+        return properties;
     }
 
 }

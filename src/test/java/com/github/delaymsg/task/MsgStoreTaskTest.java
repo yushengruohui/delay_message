@@ -1,7 +1,7 @@
 package com.github.delaymsg.task;
 
 import com.github.delaymsg.dao.DelayMsgDao;
-import com.github.delaymsg.utils.kafka.KafkaListener;
+import com.github.delaymsg.kafka.KafkaListener;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.TopicPartition;
