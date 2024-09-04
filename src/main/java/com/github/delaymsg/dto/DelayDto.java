@@ -1,6 +1,7 @@
 package com.github.delaymsg.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.delaymsg.utils.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ public class DelayDto implements Serializable {
     }
 
     public boolean checkFormat() {
-        if (triggerTime == null || triggerTime <= 0L) {
+        if (triggerTime == null || triggerTime <= 0L || triggerTime > TimeUtil.getUnixTimeAfter3Year()) {
             log.warn("triggerTime[{}] 异常", triggerTime);
             return false;
         }

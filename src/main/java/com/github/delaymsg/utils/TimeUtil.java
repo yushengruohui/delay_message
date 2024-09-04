@@ -1,5 +1,7 @@
 package com.github.delaymsg.utils;
 
+import java.time.ZonedDateTime;
+
 /**
  * @author HuaHui Yu 2024-09-04 15:58:41
  **/
@@ -9,6 +11,10 @@ public class TimeUtil {
 
     public static long unixTime() {
         return System.currentTimeMillis() / 1000;
+    }
+
+    public static long getUnixTimeAfter3Year() {
+        return ZonedDateTime.now().plusYears(3).toEpochSecond();
     }
 
     public static long extractTriggerTime(String key) {

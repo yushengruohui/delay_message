@@ -42,9 +42,11 @@ class MsgStoreTaskTest {
     @EmptySource
     @ValueSource(strings = {"111}"
             , "{111}"
+            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":null}"
             , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":0}"
-            , "{\"topic\":\"\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":9999999999999}"
+            , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":999999999999999}"
             , "{\"topic\":null,\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":1}"
+            , "{\"topic\":\"\",\"messageKey\":\"1\",\"message\":\"1\",\"triggerTime\":1}"
             , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":\"\",\"triggerTime\":1}"
             , "{\"topic\":\"1\",\"messageKey\":\"1\",\"message\":null,\"triggerTime\":1}"
     })
